@@ -1,4 +1,5 @@
 import React from 'react'
+import '../styles/globals.css'
 
 export const metadata = {
   title: '유타 - 발권 타이밍 어드바이저',
