@@ -302,20 +302,23 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+        <section className="mt-6 rounded-[28px] border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50/70 p-5 shadow-md shadow-sky-100/70 sm:p-7">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-xl font-bold text-slate-950">여행 정보를 선택해 주세요</h2>
-              <p className="mt-1 text-sm text-slate-500">목적지와 발권일만 고르면 바로 결과를 볼 수 있어요.</p>
+              <div className="mb-2 inline-flex rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-bold text-sky-700 shadow-sm">
+                핵심 입력
+              </div>
+              <h2 className="text-[1.35rem] font-black text-slate-950">여행 정보를 선택해 주세요</h2>
+              <p className="mt-1 text-sm font-medium text-slate-600">목적지와 발권일만 고르면 바로 결과를 볼 수 있어요.</p>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_180px] lg:items-end">
+          <div className="mt-5 grid gap-3 rounded-[24px] border border-sky-100 bg-white/90 p-4 shadow-sm md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_180px] lg:items-end">
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">어디로 가세요?</span>
+              <span className="text-sm font-bold text-slate-800">어디로 가세요?</span>
               <select
                 value={selectedCountry}
                 onChange={event => handleCountryChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
                 <option value="">선택</option>
                 {routeCountries.map(country => (
@@ -325,12 +328,12 @@ export default function Page() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">도시/공항 선택</span>
+              <span className="text-sm font-bold text-slate-800">도시/공항 선택</span>
               <select
                 value={selectedDestination}
                 onChange={event => handleRouteChange(event.target.value)}
                 disabled={!selectedCountry}
-                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 disabled:border-slate-200 disabled:bg-slate-50 disabled:font-medium disabled:text-slate-500"
               >
                 <option value="">{selectedCountry ? '도시/공항을 선택해 주세요' : '지역을 선택해주세요'}</option>
                 {currentRoutes.map(route => (
@@ -342,12 +345,12 @@ export default function Page() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">이 날짜에 발권한다면?</span>
+              <span className="text-sm font-bold text-slate-800">이 날짜에 발권한다면?</span>
               <input
                 type="date"
                 value={selectedTicketingDate}
                 onChange={event => handleTicketingDateChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
               />
             </label>
 
@@ -355,18 +358,18 @@ export default function Page() {
               type="button"
               onClick={handleAnalyzeClick}
               disabled={!canAnalyze}
-              className="h-12 rounded-2xl bg-sky-600 px-5 text-[0.95rem] font-bold text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 active:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:translate-y-0"
+              className="h-12 rounded-2xl bg-sky-600 px-5 text-[0.95rem] font-black text-white shadow-lg shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 active:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:translate-y-0"
             >
               발권 타이밍 보기
             </button>
           </div>
-          <p className="mt-4 break-keep text-sm leading-6 text-slate-500">
+          <p className="mt-4 break-keep text-sm font-medium leading-6 text-slate-600">
             출발지는 인천 ICN으로 고정됩니다. 항공사별 실제 고시 금액이 아니라, 원화 환산 Dubai 가격과 거리구간을 함께 고려한 참고 지표입니다.
           </p>
-          <div className="mt-6 rounded-[22px] border border-sky-100 bg-sky-50/60 p-4">
+          <div className="mt-6 rounded-[24px] border border-sky-200 bg-white/75 p-4 shadow-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h3 className="text-base font-bold text-slate-950">바로 체험해보기</h3>
+                <h3 className="text-base font-black text-slate-950">바로 체험해보기</h3>
                 <p className="mt-1 break-keep text-sm leading-6 text-slate-500">샘플을 누르면 목적지와 발권일이 바뀌고 결과가 다시 계산됩니다.</p>
               </div>
             </div>
@@ -376,7 +379,7 @@ export default function Page() {
                   key={sample.destinationCode}
                   type="button"
                   onClick={() => handleSampleClick(sample.country, sample.destinationCode)}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:text-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
+                  className="rounded-2xl border-2 border-white bg-white px-4 py-3 text-left text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:text-sky-700 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
                 >
                   {sample.label}
                 </button>
