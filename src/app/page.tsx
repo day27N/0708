@@ -28,6 +28,15 @@ const statusStyle = {
   INSUFFICIENT_DATA: 'border-amber-100 bg-amber-50 text-amber-800',
 } as const
 
+const bookingSites = [
+  { name: '네이버 항공권', href: 'https://flight.naver.com/' },
+  { name: '스카이스캐너', href: 'https://www.skyscanner.co.kr/' },
+  { name: '구글 항공권', href: 'https://www.google.com/travel/flights' },
+  { name: '트립닷컴', href: 'https://kr.trip.com/flights/' },
+  { name: '대한항공', href: 'https://www.koreanair.com/' },
+  { name: '아시아나', href: 'https://flyasiana.com/' },
+]
+
 function formatKrw(value: number | null) {
   return value === null ? '-' : Math.round(value).toLocaleString()
 }
@@ -42,6 +51,25 @@ function formatPercent(value: number | null) {
 
 function formatRouteIndex(value: number | null) {
   return value === null ? '-' : Math.round(value).toLocaleString()
+}
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 shadow-sm">
+        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-8 w-8">
+          <circle cx="22" cy="22" r="15" fill="none" stroke="#38BDF8" strokeWidth="4" strokeLinecap="round" strokeDasharray="46 18" />
+          <path d="M12 30c7-3 13-8 21-17" fill="none" stroke="#E0F2FE" strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M27 15l7-3-2.5 7 5 4-6.8.8-3.7 5.9-.6-7-6.5-2.4 6.2-2.4z" fill="#E0F2FE" />
+          <circle cx="22" cy="22" r="2.8" fill="#38BDF8" />
+        </svg>
+      </div>
+      <div>
+        <div className="text-[1.45rem] font-black leading-none text-slate-950">유타</div>
+        <p className="mt-1 text-sm leading-none text-slate-500">두바이유 추세 기반 발권 타이밍</p>
+      </div>
+    </div>
+  )
 }
 
 export default function Page() {
@@ -154,32 +182,36 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1120px]">
-        <header className="flex flex-col gap-1 border-b border-slate-200/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="text-2xl font-black text-slate-950">유타</div>
-            <p className="mt-1 text-sm text-slate-500">두바이유 추세 기반 발권 타이밍</p>
-          </div>
+        <header className="flex items-center justify-between border-b border-slate-200/80 pb-5">
+          <BrandMark />
         </header>
 
-        <section className="mt-8 rounded-[24px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-9">
-          <h1 className="break-keep text-3xl font-black tracking-normal text-slate-950 sm:text-5xl">
-            이 날짜에 발권한다면?
-          </h1>
-          <div className="mt-5 space-y-2 text-base leading-7 text-slate-600 sm:text-lg">
-            <p className="break-keep">두바이유와 환율 추세를 기준으로 다음 달 유류할증료 방향성을 참고해요.</p>
-            <p className="break-keep">출발일이 아니라 발권일 기준으로 계산됩니다.</p>
+        <section className="mt-8 rounded-[28px] border border-sky-100 bg-gradient-to-br from-white to-sky-50/70 px-6 py-8 shadow-sm sm:px-8 lg:px-10">
+          <div className="max-w-3xl">
+            <h1 className="max-w-[680px] break-keep text-[2rem] font-black leading-[1.18] tracking-normal text-slate-950 sm:text-[2.75rem]">
+              이 날짜에 발권한다면?
+            </h1>
+            <div className="mt-5 max-w-[720px] space-y-2 text-[1.02rem] leading-8 text-slate-600">
+              <p className="break-keep">두바이유와 환율 추세를 기준으로 다음 달 유류할증료 방향성을 참고해요.</p>
+              <p className="break-keep">출발일이 아니라 발권일 기준으로 계산됩니다.</p>
+            </div>
           </div>
         </section>
 
-        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-          <h2 className="text-xl font-bold text-slate-950">여행 정보를 선택해 주세요</h2>
-          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+        <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-slate-950">여행 정보를 선택해 주세요</h2>
+              <p className="mt-1 text-sm text-slate-500">목적지와 발권일만 고르면 바로 결과를 볼 수 있어요.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_180px] lg:items-end">
             <label className="block">
               <span className="text-sm font-semibold text-slate-700">어디로 가세요?</span>
               <select
                 value={selectedCountry}
                 onChange={event => handleCountryChange(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
                 {routeCountries.map(country => (
                   <option key={country} value={country}>{country}</option>
@@ -192,7 +224,7 @@ export default function Page() {
               <select
                 value={selectedDestination}
                 onChange={event => handleRouteChange(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
                 {currentRoutes.map(route => (
                   <option key={route.destinationCode} value={route.destinationCode}>
@@ -208,14 +240,14 @@ export default function Page() {
                 type="date"
                 value={selectedTicketingDate}
                 onChange={event => handleTicketingDateChange(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+                className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
               />
             </label>
 
             <button
               type="button"
               onClick={handleAnalyzeClick}
-              className="rounded-2xl bg-sky-600 px-6 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-sky-700"
+              className="h-12 rounded-2xl bg-sky-600 px-5 text-[0.95rem] font-bold text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 active:translate-y-0"
             >
               발권 타이밍 보기
             </button>
@@ -235,26 +267,26 @@ export default function Page() {
           </section>
         ) : (
           <>
-            <section className={`mt-6 rounded-[24px] border p-6 shadow-sm sm:p-8 ${statusStyle[result.status]}`}>
+            <section className={`mt-6 rounded-[28px] border p-6 shadow-sm sm:p-8 ${statusStyle[result.status]}`}>
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <span className="inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-bold shadow-sm">
                     {statusLabel[result.status]}
                   </span>
-                  <h2 className="mt-5 break-keep text-2xl font-black leading-tight text-slate-950 sm:text-4xl">
+                  <h2 className="mt-5 max-w-[720px] break-keep text-[1.75rem] font-black leading-[1.25] text-slate-950 sm:text-[2.35rem]">
                     {result.title}
                   </h2>
-                  <p className="mt-4 max-w-3xl break-keep text-base leading-8 text-slate-700">
+                  <p className="mt-4 max-w-[760px] break-keep text-[0.98rem] leading-8 text-slate-700">
                     {result.description}
                   </p>
-                  <p className="mt-3 max-w-3xl break-keep text-sm leading-6 text-slate-600">
+                  <p className="mt-3 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
                     실제 항공사 유류할증료 금액이 아니라, 원화 환산 Dubai 가격과 운항거리를 함께 고려한 참고 지표입니다.
                   </p>
                 </div>
 
-                <div className="rounded-[20px] bg-white/80 p-5 text-left shadow-sm lg:min-w-[220px]">
+                <div className="rounded-[22px] bg-white/80 p-5 text-left shadow-sm lg:min-w-[210px]">
                   <div className="text-sm font-semibold text-slate-500">변화율</div>
-                  <div className="mt-2 whitespace-nowrap text-4xl font-black text-slate-950">
+                  <div className="mt-2 whitespace-nowrap text-[2rem] font-black leading-tight text-slate-950">
                     {formatPercent(result.changeRate)}
                   </div>
                   <div className="mt-2 text-sm text-slate-500">
@@ -264,11 +296,23 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="mt-7 grid gap-3 rounded-[20px] bg-white/70 p-4 text-sm text-slate-700 md:grid-cols-2">
-                <div className="break-keep"><strong className="text-slate-950">선택 노선:</strong> {selectedRouteText}</div>
-                <div><strong className="text-slate-950">운항거리:</strong> <span className="whitespace-nowrap">{selectedRoute?.distanceMile.toLocaleString()} mile</span> / <span className="whitespace-nowrap">{selectedRoute?.distanceKm.toLocaleString()} km</span></div>
-                <div><strong className="text-slate-950">거리구간:</strong> <span className="whitespace-nowrap">{selectedRoute?.distanceBandLabel}</span></div>
-                <div><strong className="text-slate-950">거리 영향도:</strong> <span className="whitespace-nowrap">{result.distanceImpact.level} / {result.distanceImpact.label}</span></div>
+              <div className="mt-7 grid gap-3 rounded-[22px] bg-white/75 p-4 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl bg-white/70 p-3">
+                  <div className="text-xs font-semibold text-slate-500">선택 노선</div>
+                  <div className="mt-1 break-keep font-bold text-slate-950">{selectedRouteText}</div>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-3">
+                  <div className="text-xs font-semibold text-slate-500">운항거리</div>
+                  <div className="mt-1 font-bold text-slate-950"><span className="whitespace-nowrap">{selectedRoute?.distanceMile.toLocaleString()} mile</span> / <span className="whitespace-nowrap">{selectedRoute?.distanceKm.toLocaleString()} km</span></div>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-3">
+                  <div className="text-xs font-semibold text-slate-500">거리구간</div>
+                  <div className="mt-1 whitespace-nowrap font-bold text-slate-950">{selectedRoute?.distanceBandLabel}</div>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-3">
+                  <div className="text-xs font-semibold text-slate-500">거리 영향도</div>
+                  <div className="mt-1 whitespace-nowrap font-bold text-slate-950">{result.distanceImpact.level} / {result.distanceImpact.label}</div>
+                </div>
               </div>
             </section>
 
@@ -306,6 +350,31 @@ export default function Page() {
               nextPredictionPeriod={result.nextPredictionPeriod}
             />
 
+            <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-950">바로 예매 사이트로 이동</h2>
+                  <p className="mt-2 break-keep text-sm leading-6 text-slate-500">
+                    원유가격 참고 후, 실제 항공권 검색은 아래 사이트에서 바로 이어서 할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {bookingSites.map(site => (
+                  <a
+                    key={site.name}
+                    href={site.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex min-h-[54px] items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
+                  >
+                    <span>{site.name}</span>
+                    <span className="text-slate-400 transition group-hover:text-sky-600">↗</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+
             <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
               <h2 className="text-xl font-bold text-slate-950">계산 방법</h2>
               <div className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-600">
@@ -313,6 +382,16 @@ export default function Page() {
                 <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
                 <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
               </div>
+            </section>
+
+            <section className="mt-6 rounded-[26px] border border-amber-100 bg-amber-50/70 p-6 shadow-sm sm:p-7">
+              <h2 className="text-xl font-bold text-slate-950">주의</h2>
+              <ul className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-700">
+                <li>이 앱은 실제 항공권 가격 예측 서비스가 아닙니다.</li>
+                <li>실제 항공사 유류할증료 고시표를 직접 반영하는 서비스가 아닙니다.</li>
+                <li>환율, 항공사 정책, 거리 구간, 발권일 기준 고시금액 등 실제 결제 요소와 차이가 있을 수 있습니다.</li>
+                <li>원유가격은 유류할증료 흐름을 참고하기 위한 간접 지표입니다.</li>
+              </ul>
             </section>
           </>
         )}

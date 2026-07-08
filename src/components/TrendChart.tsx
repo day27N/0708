@@ -1,6 +1,6 @@
 import React from 'react'
 import { format } from 'date-fns'
-import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis } from 'recharts'
 import { DailyDubaiKrwPoint } from '../types/fx'
 import { ReferencePeriod } from '../types/fuel'
 
@@ -79,7 +79,7 @@ export default function TrendChart({
   const nextData = points.filter(point => point.periodType === 'NEXT')
 
   return (
-    <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+    <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
       <div>
         <h2 className="break-keep text-xl font-bold text-slate-950">원화 환산 두바이유 추세 비교</h2>
         <p className="mt-2 break-keep text-sm leading-6 text-slate-500">
@@ -87,15 +87,15 @@ export default function TrendChart({
         </p>
       </div>
 
-      <div className="mt-5 h-[340px] w-full">
+      <div className="mt-5 h-[300px] w-full">
         {points.length === 0 ? (
           <div className="flex h-full items-center justify-center rounded-[20px] bg-slate-50 text-sm text-slate-500">
             선택한 기간에 표시할 데이터가 없습니다.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 16, right: 16, bottom: 12, left: 12 }}>
-              <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" />
+            <ScatterChart margin={{ top: 14, right: 12, bottom: 12, left: 12 }}>
+              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="3 8" />
               <XAxis
                 type="number"
                 dataKey="timestamp"
@@ -103,16 +103,7 @@ export default function TrendChart({
                 tickFormatter={formatDateTick}
                 tick={{ fill: '#64748B', fontSize: 12 }}
                 tickLine={false}
-                axisLine={{ stroke: '#CBD5E1' }}
-              />
-              <YAxis
-                type="number"
-                dataKey="krwValue"
-                tickFormatter={value => Math.round(Number(value)).toLocaleString()}
-                tick={{ fill: '#64748B', fontSize: 12 }}
-                tickLine={false}
-                axisLine={{ stroke: '#CBD5E1' }}
-                width={82}
+                axisLine={false}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94A3B8', strokeDasharray: '4 4' }} />
               <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
