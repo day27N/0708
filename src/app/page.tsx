@@ -216,16 +216,14 @@ export default function Page() {
     setSelectedDestination(destinationCode)
     setSelectedRoute(nextRoute)
     setSelectedCountry(nextRoute.country)
-    const result = runAnalysis(selectedTicketingDate, nextRoute)
     setError(null)
-    setAnalysisResult(result)
+    setAnalysisResult(null)
   }
 
   const handleTicketingDateChange = (date: string) => {
     setSelectedTicketingDate(date)
-    const result = runAnalysis(date, selectedRoute)
     setError(null)
-    setAnalysisResult(result)
+    setAnalysisResult(null)
   }
 
   const handleAnalyzeClick = () => {
