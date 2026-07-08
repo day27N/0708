@@ -306,7 +306,7 @@ export default function Page() {
                   </p>
                 </div>
 
-                <div className="rounded-[22px] bg-white/80 p-5 text-left shadow-sm lg:min-w-[210px]">
+                <div className="rounded-[22px] bg-white/80 p-5 text-left shadow-sm lg:mt-10 lg:min-w-[210px]">
                   <div className="text-sm font-semibold text-slate-500">변화율</div>
                   <div className="mt-2 whitespace-nowrap text-[2rem] font-black leading-tight text-slate-950">
                     {formatPercent(result.changeRate)}
