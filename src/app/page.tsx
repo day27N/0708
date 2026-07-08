@@ -108,11 +108,8 @@ export default function Page(){
           </div>
         </header>
 
-        <section className="rounded-[32px] bg-white shadow-lg border border-slate-200 p-8 mb-8">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-950">이 날짜에 발권한다면?</h1>
-            <p className="mt-4 text-slate-600 text-lg leading-8">두바이유 추세를 기준으로 다음 달 유류할증료 방향성을 참고해요. 출발일이 아니라 발권일 기준으로 계산됩니다.</p>
-          </div>
+        <section className="mb-8">
+          <Hero />
         </section>
 
         <section className="grid gap-6">
@@ -181,21 +178,7 @@ export default function Page(){
                 { label: '데이터 개수', value: `${analysisResult.nextCount}` },
               ]} />
 
-              <section className="mt-6 rounded-3xl bg-white p-4 border border-slate-200">
-                <h4 className="font-semibold text-lg mb-2">월별 평균 (월 - 평균 - 데이터 수)</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-slate-500"><th className="px-2 py-1">월</th><th className="px-2 py-1">평균</th><th className="px-2 py-1">데이터 수</th></tr>
-                    </thead>
-                    <tbody>
-                      {analysisResult.monthlyAverages?.map(m => (
-                        <tr key={m.month} className="border-t"><td className="px-2 py-1">{m.month}</td><td className="px-2 py-1 text-right">{m.average === null ? '-' : m.average.toFixed(2)}</td><td className="px-2 py-1 text-right">{m.count}</td></tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
+              {/* Monthly averages removed for customer-facing UI */}
 
               <TrendChart prices={prices} currentPeriod={analysisResult.currentPeriod} nextPredictionPeriod={analysisResult.nextPredictionPeriod} />
 
