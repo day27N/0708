@@ -67,9 +67,9 @@ export default function TrendChart({prices, currentPeriod, nextPredictionPeriod}
             <Legend />
 
             {/* other data: muted small dots */}
-            <Scatter name="데이터" data={otherData} fill="#111827" shape="circle" />
-            <Scatter name="현재 발권월 기준" data={currentData} fill="#0ea5e9" shape="circle" />
-            <Scatter name="다음 발권월 예측" data={nextData} fill="#fb923c" shape="circle" />
+            <Scatter name="데이터" data={otherData} fill="#111827" shape="circle" fillOpacity={0.5} size={2} />
+            <Scatter name="현재 발권월 기준" data={currentData} fill="#0ea5e9" shape="circle" fillOpacity={0.9} size={3} />
+            <Scatter name="다음 발권월 예측" data={nextData} fill="#fb923c" shape="circle" fillOpacity={0.9} size={3} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
