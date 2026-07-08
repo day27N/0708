@@ -349,36 +349,36 @@ export default function Page() {
               ]}
             />
 
-            <TrendChart
-              prices={combinedPrices}
-              currentPeriod={result.currentPeriod}
-              nextPredictionPeriod={result.nextPredictionPeriod}
-            />
+            <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-2">
+              <TrendChart
+                prices={combinedPrices}
+                currentPeriod={result.currentPeriod}
+                nextPredictionPeriod={result.nextPredictionPeriod}
+              />
 
-            <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <section className="flex h-full min-h-[360px] flex-col rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
                 <div>
                   <h2 className="text-lg font-bold text-slate-950">바로 예매 사이트로 이동</h2>
                   <p className="mt-2 break-keep text-sm leading-6 text-slate-500">
                     원유가격 참고 후, 실제 항공권 검색은 아래 사이트에서 바로 이어서 할 수 있습니다.
                   </p>
                 </div>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {bookingSites.map(site => (
-                  <a
-                    key={site.name}
-                    href={site.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group flex min-h-[54px] items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
-                  >
-                    <span>{site.name}</span>
-                    <span className="text-slate-400 transition group-hover:text-sky-600">↗</span>
-                  </a>
-                ))}
-              </div>
-            </section>
+                <div className="mt-5 grid flex-1 content-start gap-3 sm:grid-cols-2">
+                  {bookingSites.map(site => (
+                    <a
+                      key={site.name}
+                      href={site.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex min-h-[52px] items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
+                    >
+                      <span>{site.name}</span>
+                      <span className="text-slate-400 transition group-hover:text-sky-600">↗</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            </div>
 
             <section className="mt-6 rounded-[26px] border border-slate-200 bg-[#FBFDFF] p-6 shadow-sm sm:p-7">
               <h2 className="text-lg font-bold text-slate-950">계산 방법</h2>

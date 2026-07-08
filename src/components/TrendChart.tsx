@@ -51,7 +51,7 @@ function CustomTooltip({ active, payload }: any) {
 
 function PointShape(props: any) {
   const { cx, cy, fill } = props
-  return <circle cx={cx} cy={cy} r={4} fill={fill} fillOpacity={0.9} />
+  return <circle cx={cx} cy={cy} r={4.5} fill={fill} fillOpacity={0.92} />
 }
 
 export default function TrendChart({
@@ -84,27 +84,28 @@ export default function TrendChart({
   const yDomain: [number, number] = [minKrw - yPadding, maxKrw + yPadding]
 
   return (
-    <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+    <section className="flex h-full min-h-[360px] flex-col rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
       <div>
-        <h2 className="break-keep text-xl font-bold text-slate-950">원화 환산 두바이유 추세 비교</h2>
+        <h2 className="break-keep text-lg font-bold text-slate-950">원화 환산 두바이유 추세 비교</h2>
         <p className="mt-2 break-keep text-sm leading-6 text-slate-500">
           선택한 발권일 기준으로 계산에 사용된 원화 환산 Dubai 일별 데이터를 점으로 표시합니다.
         </p>
       </div>
 
-      <div className="mt-5 h-[240px] w-full">
+      <div className="mt-4 min-h-[214px] flex-1 w-full">
         {points.length === 0 ? (
           <div className="flex h-full items-center justify-center rounded-[20px] bg-slate-50 text-sm text-slate-500">
             선택한 기간에 표시할 데이터가 없습니다.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 14, right: 12, bottom: 8, left: 12 }}>
-              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="2 10" />
+            <ScatterChart margin={{ top: 12, right: 8, bottom: 4, left: 8 }}>
+              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="2 10" strokeOpacity={0.5} />
               <XAxis
                 type="number"
                 dataKey="timestamp"
                 domain={['dataMin', 'dataMax']}
+                tickCount={3}
                 tickFormatter={formatDateTick}
                 tick={{ fill: '#64748B', fontSize: 12 }}
                 tickLine={false}
@@ -120,7 +121,7 @@ export default function TrendChart({
                 tick={false}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94A3B8', strokeDasharray: '4 4' }} />
-              <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
+              <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 8, fontSize: 12 }} iconSize={9} />
               <Scatter name="현재 발권월 기준" data={currentData} fill="#0EA5E9" shape={<PointShape />} />
               <Scatter name="다음 발권월 예측" data={nextData} fill="#10B981" shape={<PointShape />} />
             </ScatterChart>
