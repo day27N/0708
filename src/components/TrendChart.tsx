@@ -1,6 +1,6 @@
 import React from 'react'
 import { format } from 'date-fns'
-import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis } from 'recharts'
+import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts'
 import { DailyDubaiKrwPoint } from '../types/fx'
 import { ReferencePeriod } from '../types/fuel'
 
@@ -77,6 +77,11 @@ export default function TrendChart({
 
   const currentData = points.filter(point => point.periodType === 'CURRENT')
   const nextData = points.filter(point => point.periodType === 'NEXT')
+  const krwValues = points.map(point => point.krwValue)
+  const minKrw = Math.min(...krwValues)
+  const maxKrw = Math.max(...krwValues)
+  const yPadding = Math.max((maxKrw - minKrw) * 0.18, maxKrw * 0.015, 1)
+  const yDomain: [number, number] = [minKrw - yPadding, maxKrw + yPadding]
 
   return (
     <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
@@ -87,15 +92,15 @@ export default function TrendChart({
         </p>
       </div>
 
-      <div className="mt-5 h-[300px] w-full">
+      <div className="mt-5 h-[260px] w-full">
         {points.length === 0 ? (
           <div className="flex h-full items-center justify-center rounded-[20px] bg-slate-50 text-sm text-slate-500">
             선택한 기간에 표시할 데이터가 없습니다.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 14, right: 12, bottom: 12, left: 12 }}>
-              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="3 8" />
+            <ScatterChart margin={{ top: 14, right: 12, bottom: 8, left: 12 }}>
+              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="2 10" />
               <XAxis
                 type="number"
                 dataKey="timestamp"
@@ -104,6 +109,15 @@ export default function TrendChart({
                 tick={{ fill: '#64748B', fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
+              />
+              <YAxis
+                type="number"
+                dataKey="krwValue"
+                domain={yDomain}
+                hide
+                axisLine={false}
+                tickLine={false}
+                tick={false}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94A3B8', strokeDasharray: '4 4' }} />
               <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
