@@ -55,19 +55,20 @@ function formatRouteIndex(value: number | null) {
 
 function BrandMark() {
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-slate-950 shadow-sm shadow-sky-100">
-        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-10 w-10">
-          <circle cx="22" cy="22" r="15" fill="none" stroke="#38BDF8" strokeWidth="4" strokeLinecap="round" strokeDasharray="46 18" />
-          <path d="M12 30c7-3 13-8 21-17" fill="none" stroke="#E0F2FE" strokeWidth="3.2" strokeLinecap="round" />
-          <path d="M27 15l7-3-2.5 7 5 4-6.8.8-3.7 5.9-.6-7-6.5-2.4 6.2-2.4z" fill="#E0F2FE" />
-          <circle cx="22" cy="22" r="2.8" fill="#38BDF8" />
+    <div className="flex items-center gap-3.5">
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border border-sky-100 bg-white shadow-sm">
+        <svg viewBox="0 0 64 64" aria-hidden="true" className="h-12 w-12">
+          <path d="M15 47c8.5-3.8 17-11.2 31.5-28.5" fill="none" stroke="#0F2742" strokeWidth="4.2" strokeLinecap="round" />
+          <path d="M9 49c7.2-1.4 13.2-4.6 19-10.2" fill="none" stroke="#1976F3" strokeWidth="4.2" strokeLinecap="round" />
+          <path d="M40.5 20.5l12.5-4.6-4.6 12 7.8 6.4-10.2 1-6 9-1.1-10.8-10.2-3.5 9.6-3.7z" fill="#0F2742" />
+          <path d="M18.4 45.6a23.8 23.8 0 1 1 35-21.3" fill="none" stroke="#1777F2" strokeWidth="6.4" strokeLinecap="round" />
+          <path d="M53.8 35.4a23.8 23.8 0 0 1-32.2 14.8" fill="none" stroke="#174FE5" strokeWidth="6.4" strokeLinecap="round" />
+          <path d="M32 9.5v5.5M13.5 32h5M32 49v5.5" stroke="#174FE5" strokeWidth="3.2" strokeLinecap="round" />
+          <circle cx="32" cy="32" r="5" fill="#0F2742" />
         </svg>
       </div>
       <div>
-        <div className="text-[1.7rem] font-black leading-none text-slate-950 sm:text-[1.85rem]">
-          <span className="text-slate-950">유</span><span className="text-sky-700">타</span>
-        </div>
+        <div className="text-[1.8rem] font-black leading-none text-[#0F2742] sm:text-[1.95rem]">유타</div>
         <p className="mt-1.5 text-[0.9rem] font-medium leading-none text-slate-600">두바이유 추세 기반 발권 타이밍</p>
       </div>
     </div>
@@ -193,7 +194,7 @@ export default function Page() {
             <div className="mb-4 inline-flex rounded-full border border-sky-100 bg-white/80 px-3.5 py-1.5 text-sm font-bold text-sky-700 shadow-sm">
               유타 발권 타이밍
             </div>
-            <h1 className="max-w-[680px] break-keep text-[2rem] font-black leading-[1.18] tracking-normal text-slate-950 sm:text-[2.75rem]">
+            <h1 className="max-w-[620px] break-keep text-[1.75rem] font-black leading-[1.22] tracking-normal text-slate-950 sm:text-[2.25rem]">
               이 날짜에 발권한다면?
             </h1>
             <div className="mt-5 max-w-[720px] space-y-2 text-[1.02rem] leading-8 text-slate-600">
