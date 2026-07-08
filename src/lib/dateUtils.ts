@@ -25,7 +25,7 @@ export function getNextPredictionPeriod(ticketingDate: Date, availableUntil: Dat
   const start = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), 16)
   // full next reference period end (15th of ticketing month)
   const fullNextEnd = new Date(ticketingDate.getFullYear(), ticketingDate.getMonth(), 15)
-  const endDate = min(ticketingDate, availableUntil, fullNextEnd)
+  const endDate = min([ticketingDate, availableUntil, fullNextEnd])
   return { start: format(start, 'yyyy-MM-dd'), end: format(endDate, 'yyyy-MM-dd') }
 }
 
