@@ -2,14 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import DataSourceNotice from '../components/DataSourceNotice'
-import FeatureCard from '../components/FeatureCard'
 import KeyMetrics from '../components/KeyMetrics'
-import MiniLineChart from '../components/MiniLineChart'
-import OnboardingForm from '../components/OnboardingForm'
 import PeriodComparisonTable from '../components/PeriodComparisonTable'
-import RouteInputForm from '../components/RouteInputForm'
-import SidebarMenu from '../components/SidebarMenu'
-import StatusCard from '../components/StatusCard'
 import TrendChart from '../components/TrendChart'
 import { loadInternalDubaiCsv } from '../data/internalDubaiCsv'
 import { defaultRoute, routeCountries, routes } from '../data/routes'
@@ -20,7 +14,35 @@ import { combineDubaiWithFx } from '../lib/dubaiFxCombiner'
 import { AnalysisResult, DailyDubaiOilPrice, RouteDistance } from '../types/fuel'
 import { DailyDubaiKrwPoint, DailyFxRate } from '../types/fx'
 
-const airlineOptions = ['대한항공', '아시아나항공', 'LCC', '외항사']
+const statusLabel = {
+  BUY_NOW: '지금 발권 유리',
+  WAIT: '기다리기 고려',
+  NEUTRAL: '큰 차이 없음',
+  INSUFFICIENT_DATA: '데이터 부족',
+} as const
+
+const statusStyle = {
+  BUY_NOW: 'border-sky-100 bg-sky-50 text-sky-800',
+  WAIT: 'border-emerald-100 bg-emerald-50 text-emerald-800',
+  NEUTRAL: 'border-slate-100 bg-slate-50 text-slate-700',
+  INSUFFICIENT_DATA: 'border-amber-100 bg-amber-50 text-amber-800',
+} as const
+
+function formatKrw(value: number | null) {
+  return value === null ? '-' : Math.round(value).toLocaleString()
+}
+
+function formatUsd(value: number | null) {
+  return value === null ? '-' : value.toFixed(2)
+}
+
+function formatPercent(value: number | null) {
+  return value === null ? '-' : `${value.toFixed(2)}%`
+}
+
+function formatRouteIndex(value: number | null) {
+  return value === null ? '-' : Math.round(value).toLocaleString()
+}
 
 export default function Page() {
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -30,36 +52,38 @@ export default function Page() {
   const [selectedTicketingDate, setSelectedTicketingDate] = useState(todayStr)
   const [selectedCountry, setSelectedCountry] = useState(defaultRoute.country)
   const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(defaultRoute)
+  const [selectedDestination, setSelectedDestination] = useState(defaultRoute.destinationCode)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [departure, setDeparture] = useState('인천 (ICN)')
-  const [destination, setDestination] = useState(defaultRoute.destinationCode)
-  const [travelMonth, setTravelMonth] = useState(new Date().toISOString().slice(0, 7))
-  const [airline, setAirline] = useState(airlineOptions[0])
+  const currentRoutes = routes.filter(route => route.country === selectedCountry)
 
-  const formatKrw = (value: number | null) => value === null ? '-' : Math.round(value).toLocaleString()
-  const formatRouteIndex = (value: number | null) => value === null ? '-' : `${Math.round(value).toLocaleString()} 원/bbl·천마일`
-
-  const analyzeTicketingDate = async (date: string, route: RouteDistance | null): Promise<AnalysisResult | null> => {
-    if (prices.length === 0 || fxRates.length === 0 || combinedPrices.length === 0) return null
+  const runAnalysis = (
+    date: string,
+    route: RouteDistance | null,
+    sourcePrices = prices,
+    sourceFxRates = fxRates,
+    sourceCombinedPrices = combinedPrices,
+  ) => {
+    if (sourcePrices.length === 0 || sourceFxRates.length === 0 || sourceCombinedPrices.length === 0) return null
 
     const ticketDate = new Date(date)
+    const latestDubaiDate = sourcePrices[sourcePrices.length - 1].date
     const issueMonth = getIssueMonth(ticketDate)
     const currentPeriod = getCurrentReferencePeriod(issueMonth)
-    const nextPredictionPeriod = getNextPredictionPeriod(ticketDate, new Date(prices[prices.length - 1].date))
+    const nextPredictionPeriod = getNextPredictionPeriod(ticketDate, new Date(latestDubaiDate))
     const fullNextReferencePeriod = getFullNextReferencePeriod(ticketDate)
 
     return analyzeKrwFuelData(
       date,
-      combinedPrices,
-      fxRates[fxRates.length - 1]?.date ?? date,
+      sourceCombinedPrices,
+      sourceFxRates[sourceFxRates.length - 1]?.date ?? date,
       route,
       currentPeriod,
       nextPredictionPeriod,
       fullNextReferencePeriod,
-      prices[prices.length - 1].date,
+      latestDubaiDate,
     )
   }
 
@@ -74,19 +98,7 @@ export default function Page() {
         setPrices(loadedPrices)
         setFxRates(loadedFx)
         setCombinedPrices(combined)
-
-        const initialResult = analyzeKrwFuelData(
-          todayStr,
-          combined,
-          loadedFx[loadedFx.length - 1]?.date ?? todayStr,
-          defaultRoute,
-          getCurrentReferencePeriod(getIssueMonth(new Date(todayStr))),
-          getNextPredictionPeriod(new Date(todayStr), new Date(loadedPrices[loadedPrices.length - 1].date)),
-          getFullNextReferencePeriod(new Date(todayStr)),
-          loadedPrices[loadedPrices.length - 1].date,
-        )
-
-        setAnalysisResult(initialResult)
+        setAnalysisResult(runAnalysis(todayStr, defaultRoute, loadedPrices, loadedFx, combined))
       } catch {
         setError('데이터를 불러오지 못했습니다. 다시 시도해주세요.')
       } finally {
@@ -95,267 +107,217 @@ export default function Page() {
     }
 
     init()
-  }, [todayStr])
+  }, [])
 
-  const handleTicketingDateChange = async (date: string) => {
-    setSelectedTicketingDate(date)
-    const result = await analyzeTicketingDate(date, selectedRoute)
-    if (result) setAnalysisResult(result)
-  }
-
-  const handleCountryChange = async (country: string) => {
-    setSelectedCountry(country)
+  const handleCountryChange = (country: string) => {
     const nextRoute = routes.find(route => route.country === country) ?? defaultRoute
+    setSelectedCountry(country)
     setSelectedRoute(nextRoute)
-    setDestination(nextRoute.destinationCode)
-    const result = await analyzeTicketingDate(selectedTicketingDate, nextRoute)
+    setSelectedDestination(nextRoute.destinationCode)
+    const result = runAnalysis(selectedTicketingDate, nextRoute)
     if (result) setAnalysisResult(result)
   }
 
-  const handleRouteChange = async (destinationCode: string) => {
+  const handleRouteChange = (destinationCode: string) => {
     const nextRoute = routes.find(route => route.destinationCode === destinationCode)
     if (!nextRoute) return
 
+    setSelectedDestination(destinationCode)
     setSelectedRoute(nextRoute)
     setSelectedCountry(nextRoute.country)
-    setDestination(nextRoute.destinationCode)
-    const result = await analyzeTicketingDate(selectedTicketingDate, nextRoute)
+    const result = runAnalysis(selectedTicketingDate, nextRoute)
     if (result) setAnalysisResult(result)
   }
 
-  const handleAnalyzeClick = async () => {
-    if (prices.length === 0 || fxRates.length === 0 || combinedPrices.length === 0) {
-      setError('데이터가 아직 준비되지 않았습니다.')
-      return
+  const handleTicketingDateChange = (date: string) => {
+    setSelectedTicketingDate(date)
+    const result = runAnalysis(date, selectedRoute)
+    if (result) setAnalysisResult(result)
+  }
+
+  const handleAnalyzeClick = () => {
+    const result = runAnalysis(selectedTicketingDate, selectedRoute)
+    if (result) {
+      setError(null)
+      setAnalysisResult(result)
+    } else {
+      setError('선택한 조건으로 계산할 데이터가 아직 준비되지 않았습니다.')
     }
-
-    const result = await analyzeTicketingDate(selectedTicketingDate, selectedRoute)
-    if (result) setAnalysisResult(result)
   }
 
-  const handleOnboardingChange = (field: string, value: string) => {
-    if (field === 'departure') setDeparture(value)
-    if (field === 'destination') setDestination(value)
-    if (field === 'month') setTravelMonth(value)
-    if (field === 'airline') setAirline(value)
-  }
-
-  const handleOnboardingSubmit = async () => {
-    const nextRoute = routes.find(route => route.destinationCode === destination) ?? selectedRoute ?? defaultRoute
-    setSelectedRoute(nextRoute)
-    setSelectedCountry(nextRoute.country)
-
-    const result = await analyzeTicketingDate(selectedTicketingDate, nextRoute)
-    if (result) setAnalysisResult(result)
-  }
-
-  const recentTrend = combinedPrices.slice(-24).map(point => ({
-    date: point.date,
-    value: point.dubaiKrwPerBarrel,
-  }))
-
-  const recommendation = analysisResult?.status === 'BUY_NOW'
-    ? '지금 발권'
-    : analysisResult?.status === 'WAIT'
-      ? '기다려보기'
-      : '중립'
+  const result = analysisResult
+  const latestDataDate = result?.effectiveDataUntil ?? '-'
+  const selectedRouteText = selectedRoute
+    ? `${selectedRoute.originName} ${selectedRoute.originCode} → ${selectedRoute.destinationName} ${selectedRoute.destinationCode}`
+    : '-'
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 sm:px-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
-          <SidebarMenu />
+    <main className="min-h-screen bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1120px]">
+        <header className="flex flex-col gap-1 border-b border-slate-200/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-2xl font-black text-slate-950">유타</div>
+            <p className="mt-1 text-sm text-slate-500">두바이유 추세 기반 발권 타이밍</p>
+          </div>
+        </header>
 
-          <section className="space-y-8">
-            <section className="rounded-[32px] bg-sky-600 px-6 py-8 text-white shadow-[0_24px_80px_-40px_rgba(14,165,233,0.55)] sm:px-10">
-              <div className="max-w-3xl">
-                <div className="inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em] text-sky-100">
-                  Uta Fuel Cost
-                </div>
-                <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
-                  발권 타이밍과 유류할증료 흐름을 한눈에
-                </h1>
-                <p className="mt-4 max-w-2xl text-base leading-8 text-sky-100/90">
-                  두바이유와 환율 데이터를 결합해 노선별 거리 영향을 반영하고, 오늘 발권해도 좋은지 빠르게 판단할 수 있게 정리합니다.
-                </p>
-              </div>
-            </section>
+        <section className="mt-8 rounded-[24px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-9">
+          <h1 className="break-keep text-3xl font-black tracking-normal text-slate-950 sm:text-5xl">
+            이 날짜에 발권한다면?
+          </h1>
+          <div className="mt-5 space-y-2 text-base leading-7 text-slate-600 sm:text-lg">
+            <p className="break-keep">두바이유와 환율 추세를 기준으로 다음 달 유류할증료 방향성을 참고해요.</p>
+            <p className="break-keep">출발일이 아니라 발권일 기준으로 계산됩니다.</p>
+          </div>
+        </section>
 
-            <section className="grid gap-6 lg:grid-cols-[1fr_420px]">
-              <div className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <FeatureCard
-                    icon="₩"
-                    title="환화 환산 추세"
-                    description="Dubai 유가와 원/달러 환율을 결합해 KRW/bbl 기준으로 비교합니다."
-                  />
-                  <FeatureCard
-                    icon="↗"
-                    title="노선별 거리 참고"
-                    description="목적지별 운항거리와 거리구간을 함께 보여 발권 판단에 필요한 맥락을 더합니다."
-                  />
-                  <FeatureCard
-                    icon="✓"
-                    title="발권 시점 제안"
-                    description="선택한 발권일 기준으로 현재 산정기간과 다음 예측기간을 비교합니다."
-                  />
-                </div>
+        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+          <h2 className="text-xl font-bold text-slate-950">여행 정보를 선택해 주세요</h2>
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+            <label className="block">
+              <span className="text-sm font-semibold text-slate-700">어디로 가세요?</span>
+              <select
+                value={selectedCountry}
+                onChange={event => handleCountryChange(event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+              >
+                {routeCountries.map(country => (
+                  <option key={country} value={country}>{country}</option>
+                ))}
+              </select>
+            </label>
 
-                <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="text-sm uppercase tracking-[0.24em] text-slate-500">Onboarding</div>
-                      <h2 className="mt-3 text-2xl font-bold text-slate-950">여행 정보를 입력해보세요</h2>
-                    </div>
-                    <div className="rounded-full bg-slate-50 px-4 py-2 text-sm text-slate-600">{airline} 선택</div>
-                  </div>
+            <label className="block">
+              <span className="text-sm font-semibold text-slate-700">도시/공항 선택</span>
+              <select
+                value={selectedDestination}
+                onChange={event => handleRouteChange(event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+              >
+                {currentRoutes.map(route => (
+                  <option key={route.destinationCode} value={route.destinationCode}>
+                    {route.destinationName} ({route.destinationCode})
+                  </option>
+                ))}
+              </select>
+            </label>
 
-                  <OnboardingForm
-                    departure={departure}
-                    destination={destination}
-                    month={travelMonth}
-                    airline={airline}
-                    routes={routes}
-                    airlines={airlineOptions}
-                    onChange={handleOnboardingChange}
-                    onSubmit={handleOnboardingSubmit}
-                  />
-                </div>
-              </div>
+            <label className="block">
+              <span className="text-sm font-semibold text-slate-700">이 날짜에 발권한다면?</span>
+              <input
+                type="date"
+                value={selectedTicketingDate}
+                onChange={event => handleTicketingDateChange(event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white"
+              />
+            </label>
 
-              <div className="space-y-6">
-                <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="text-sm uppercase tracking-[0.24em] text-slate-500">Dashboard</div>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    <StatusCard
-                      label="현재 추천"
-                      value={recommendation}
-                      tone={analysisResult?.status === 'BUY_NOW' ? 'primary' : analysisResult?.status === 'WAIT' ? 'warning' : 'neutral'}
-                      active
-                    />
-                    <StatusCard
-                      label="선택 노선"
-                      value={selectedRoute ? `${selectedRoute.city} (${selectedRoute.destinationCode})` : '-'}
-                      detail={selectedRoute?.distanceBandLabel}
-                    />
-                  </div>
-                </div>
+            <button
+              type="button"
+              onClick={handleAnalyzeClick}
+              className="rounded-2xl bg-sky-600 px-6 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-sky-700"
+            >
+              발권 타이밍 보기
+            </button>
+          </div>
+          <p className="mt-4 break-keep text-sm leading-6 text-slate-500">
+            출발지는 인천 ICN으로 고정됩니다. 항공사별 실제 고시 금액이 아니라, 원화 환산 Dubai 가격과 거리구간을 함께 고려한 참고 지표입니다.
+          </p>
+        </section>
 
-                <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-sm uppercase tracking-[0.24em] text-slate-500">최근 24개 추세</div>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">KRW/bbl</p>
-                    </div>
-                    <div className="text-right text-sm text-slate-500">
-                      {combinedPrices.length > 0 ? `${combinedPrices[combinedPrices.length - 1].date} 기준` : '데이터 준비 중'}
-                    </div>
-                  </div>
-                  <div className="mt-5">
-                    <MiniLineChart data={recentTrend} />
-                  </div>
-                </div>
-              </div>
-            </section>
+        {error ? (
+          <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5 text-rose-700">{error}</div>
+        ) : null}
 
-            <section className="grid gap-6 xl:grid-cols-[1.4fr_420px]">
-              <div className="space-y-6">
-                <section className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <div className="text-sm uppercase tracking-[0.24em] text-slate-500">분석 결과</div>
-                      <h2 className="mt-3 text-3xl font-bold text-slate-950">발권 타이밍 인사이트</h2>
-                    </div>
-                    <div className="rounded-3xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                      발권일
-                      <input
-                        type="date"
-                        value={selectedTicketingDate}
-                        onChange={event => handleTicketingDateChange(event.target.value)}
-                        className="ml-3 rounded-2xl border border-slate-200 bg-white px-3 py-2"
-                      />
-                    </div>
-                  </div>
-
-                  {error ? (
-                    <div className="mt-8 rounded-[28px] border border-rose-200 bg-rose-50 p-6 text-rose-700">{error}</div>
-                  ) : null}
-
-                  {isLoading || !analysisResult ? (
-                    <div className="mt-8 rounded-[28px] border border-slate-200 bg-slate-50 p-6 text-slate-500">
-                      데이터를 불러오는 중입니다. 잠시만 기다려주세요.
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mt-8 grid gap-4 md:grid-cols-3">
-                        <StatusCard label="변화율" value={analysisResult.changeRate === null ? '-' : `${analysisResult.changeRate.toFixed(2)}%`} />
-                        <StatusCard label="신뢰도" value={`${analysisResult.confidenceProgress}%`} detail={analysisResult.confidenceLabel} />
-                        <StatusCard label="대상 기간" value={`${analysisResult.currentPeriod.start} ~ ${analysisResult.nextPredictionPeriod.end}`} />
-                      </div>
-
-                      <div className="mt-8">
-                        <KeyMetrics
-                          currentAverage={formatKrw(analysisResult.currentPeriod.averageKrw)}
-                          nextAverage={formatKrw(analysisResult.nextPredictionPeriod.averageKrw)}
-                          routeAdjustedCurrent={formatRouteIndex(analysisResult.routeAdjustedIndex.current)}
-                          routeAdjustedNext={formatRouteIndex(analysisResult.routeAdjustedIndex.next)}
-                          changeRate={analysisResult.changeRate === null ? '-' : `${analysisResult.changeRate.toFixed(2)}%`}
-                          confidence={`${analysisResult.confidenceProgress}% (${analysisResult.confidenceLabel})`}
-                        />
-                      </div>
-
-                      <div className="mt-8">
-                        <PeriodComparisonTable
-                          rows={[
-                            { label: '현재 발권월 기준 기간', value: `${analysisResult.currentPeriod.start} ~ ${analysisResult.currentPeriod.end}` },
-                            { label: '다음 발권월 예측 기간', value: `${analysisResult.nextPredictionPeriod.start} ~ ${analysisResult.nextPredictionPeriod.end}` },
-                            { label: '직전 산정기간 평균 (KRW/bbl)', value: formatKrw(analysisResult.currentPeriod.averageKrw) },
-                            { label: '현재 진행 기간 평균 (KRW/bbl)', value: formatKrw(analysisResult.nextPredictionPeriod.averageKrw) },
-                          ]}
-                        />
-                      </div>
-                    </>
-                  )}
-                </section>
-
-                {!isLoading && analysisResult ? (
-                  <TrendChart
-                    prices={combinedPrices}
-                    currentPeriod={analysisResult.currentPeriod}
-                    nextPredictionPeriod={analysisResult.nextPredictionPeriod}
-                  />
-                ) : null}
-              </div>
-
-              <aside className="space-y-6">
-                <RouteInputForm
-                  countries={routeCountries}
-                  routes={routes}
-                  selectedCountry={selectedCountry}
-                  selectedRoute={selectedRoute}
-                  onCountryChange={handleCountryChange}
-                  onRouteChange={handleRouteChange}
-                />
-
-                <div className="rounded-[32px] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-                  <div className="text-sm uppercase tracking-[0.24em] text-slate-500">현재 요약</div>
-                  <p className="mt-4 leading-7 text-slate-700">
-                    유류할증료는 실제 항공사 고시표와 운항거리 구간에 따라 달라질 수 있습니다. 이 화면은 두바이유 가격과 환율 흐름을 바탕으로 발권 판단을 돕는 참고 지표입니다.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleAnalyzeClick}
-                    className="mt-5 w-full rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-                  >
-                    선택 조건으로 다시 분석
-                  </button>
-                </div>
-              </aside>
-            </section>
-
-            <DataSourceNotice />
+        {isLoading || !result ? (
+          <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-8 text-slate-500 shadow-sm">
+            데이터를 불러오는 중입니다. 잠시만 기다려주세요.
           </section>
-        </div>
+        ) : (
+          <>
+            <section className={`mt-6 rounded-[24px] border p-6 shadow-sm sm:p-8 ${statusStyle[result.status]}`}>
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <span className="inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-bold shadow-sm">
+                    {statusLabel[result.status]}
+                  </span>
+                  <h2 className="mt-5 break-keep text-2xl font-black leading-tight text-slate-950 sm:text-4xl">
+                    {result.title}
+                  </h2>
+                  <p className="mt-4 max-w-3xl break-keep text-base leading-8 text-slate-700">
+                    {result.description}
+                  </p>
+                  <p className="mt-3 max-w-3xl break-keep text-sm leading-6 text-slate-600">
+                    실제 항공사 유류할증료 금액이 아니라, 원화 환산 Dubai 가격과 운항거리를 함께 고려한 참고 지표입니다.
+                  </p>
+                </div>
+
+                <div className="rounded-[20px] bg-white/80 p-5 text-left shadow-sm lg:min-w-[220px]">
+                  <div className="text-sm font-semibold text-slate-500">변화율</div>
+                  <div className="mt-2 whitespace-nowrap text-4xl font-black text-slate-950">
+                    {formatPercent(result.changeRate)}
+                  </div>
+                  <div className="mt-2 text-sm text-slate-500">
+                    계산에 사용한 최신 데이터일
+                    <span className="mt-1 block whitespace-nowrap font-semibold text-slate-800">{latestDataDate}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-7 grid gap-3 rounded-[20px] bg-white/70 p-4 text-sm text-slate-700 md:grid-cols-2">
+                <div className="break-keep"><strong className="text-slate-950">선택 노선:</strong> {selectedRouteText}</div>
+                <div><strong className="text-slate-950">운항거리:</strong> <span className="whitespace-nowrap">{selectedRoute?.distanceMile.toLocaleString()} mile</span> / <span className="whitespace-nowrap">{selectedRoute?.distanceKm.toLocaleString()} km</span></div>
+                <div><strong className="text-slate-950">거리구간:</strong> <span className="whitespace-nowrap">{selectedRoute?.distanceBandLabel}</span></div>
+                <div><strong className="text-slate-950">거리 영향도:</strong> <span className="whitespace-nowrap">{result.distanceImpact.level} / {result.distanceImpact.label}</span></div>
+              </div>
+            </section>
+
+            <KeyMetrics
+              currentAverage={`${formatKrw(result.currentPeriod.averageKrw)}원/bbl`}
+              currentAverageSub={`${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`}
+              nextAverage={`${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`}
+              nextAverageSub={`${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`}
+              changeRate={formatPercent(result.changeRate)}
+              distanceImpact={`${result.distanceImpact.level} / ${result.distanceImpact.label}`}
+              routeAdjustedNext={`${formatRouteIndex(result.routeAdjustedIndex.next)}원/bbl·천마일`}
+              confidence={`${result.confidenceProgress}% ${result.confidenceLabel}`}
+            />
+
+            <PeriodComparisonTable
+              rows={[
+                { label: '현재 발권월 기준 기간', value: `${result.currentPeriod.start} ~ ${result.currentPeriod.end}` },
+                { label: '다음 발권월 예측 기간', value: `${result.nextPredictionPeriod.start} ~ ${result.nextPredictionPeriod.end}` },
+                {
+                  label: '직전 산정기간 평균',
+                  value: `${formatKrw(result.currentPeriod.averageKrw)}원/bbl`,
+                  detail: `${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`,
+                },
+                {
+                  label: '현재 진행기간 평균',
+                  value: `${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`,
+                  detail: `${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`,
+                },
+              ]}
+            />
+
+            <TrendChart
+              prices={combinedPrices}
+              currentPeriod={result.currentPeriod}
+              nextPredictionPeriod={result.nextPredictionPeriod}
+            />
+
+            <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+              <h2 className="text-xl font-bold text-slate-950">계산 방법</h2>
+              <div className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-600">
+                <p>현재 발권월 기준 기간과 다음 발권월 예측 기간의 원화 환산 Dubai 평균을 비교합니다.</p>
+                <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
+                <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
+              </div>
+            </section>
+          </>
+        )}
+
+        <DataSourceNotice />
       </div>
     </main>
   )

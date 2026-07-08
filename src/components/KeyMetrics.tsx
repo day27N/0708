@@ -2,40 +2,80 @@ import React from 'react'
 
 type KeyMetricsProps = {
   currentAverage: string
+  currentAverageSub: string
   nextAverage: string
-  routeAdjustedCurrent: string
-  routeAdjustedNext: string
+  nextAverageSub: string
   changeRate: string
+  distanceImpact: string
+  routeAdjustedNext: string
   confidence: string
 }
 
-export default function KeyMetrics({currentAverage, nextAverage, routeAdjustedCurrent, routeAdjustedNext, changeRate, confidence}:KeyMetricsProps){
+type MetricItem = {
+  label: string
+  value: string
+  sub?: string
+}
+
+function MetricCard({ label, value, sub }: MetricItem) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 mt-4">
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200 col-span-2">
-        <div className="text-xs text-slate-500">직전 산정기간 평균 (KRW/bbl)</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{currentAverage}</div>
+    <div className="min-w-0 rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="break-keep text-sm font-semibold leading-6 text-slate-500">{label}</div>
+      <div className="mt-3 break-keep text-[1.65rem] font-black leading-tight text-slate-950 sm:text-3xl">
+        <span className="whitespace-nowrap">{value}</span>
       </div>
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200 col-span-2">
-        <div className="text-xs text-slate-500">현재 진행 기간 평균 (KRW/bbl)</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{nextAverage}</div>
-      </div>
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200">
-        <div className="text-xs text-slate-500">거리조정 지수 (현재)</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{routeAdjustedCurrent}</div>
-      </div>
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200">
-        <div className="text-xs text-slate-500">거리조정 지수 (예측)</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{routeAdjustedNext}</div>
-      </div>
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200">
-        <div className="text-xs text-slate-500">변화율</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{changeRate}</div>
-      </div>
-      <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200">
-        <div className="text-xs text-slate-500">신뢰도</div>
-        <div className="mt-2 text-2xl font-semibold text-slate-900">{confidence}</div>
-      </div>
+      {sub ? <div className="mt-2 whitespace-nowrap text-sm font-medium text-slate-500">{sub}</div> : null}
     </div>
+  )
+}
+
+export default function KeyMetrics({
+  currentAverage,
+  currentAverageSub,
+  nextAverage,
+  nextAverageSub,
+  changeRate,
+  distanceImpact,
+  routeAdjustedNext,
+  confidence,
+}: KeyMetricsProps) {
+  const metrics: MetricItem[] = [
+    {
+      label: '직전 산정기간 원화 유류비 지표',
+      value: currentAverage,
+      sub: currentAverageSub,
+    },
+    {
+      label: '현재 진행기간 원화 유류비 지표',
+      value: nextAverage,
+      sub: nextAverageSub,
+    },
+    {
+      label: '변화율',
+      value: changeRate,
+    },
+    {
+      label: '거리 영향도',
+      value: distanceImpact,
+    },
+    {
+      label: '거리반영 원화 유류비 지표',
+      value: routeAdjustedNext,
+    },
+    {
+      label: '신뢰도',
+      value: confidence,
+    },
+  ]
+
+  return (
+    <section className="mt-6">
+      <h2 className="text-xl font-bold text-slate-950">핵심 지표</h2>
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {metrics.map(metric => (
+          <MetricCard key={metric.label} {...metric} />
+        ))}
+      </div>
+    </section>
   )
 }
