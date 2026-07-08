@@ -23,31 +23,52 @@ export type RouteDistance = {
   source: "MOLIT_ROUTE_DISTANCE";
 }
 
-export type Recommendation = "BUY_NOW" | "WAIT" | "NEUTRAL";
+export type Recommendation = "BUY_NOW" | "WAIT" | "NEUTRAL" | "INSUFFICIENT_DATA";
 
 export type AnalysisResult = {
+  status: Recommendation
+  title: string
+  description: string
   selectedTicketingDate: string
-  issueMonth: string
+  currentIssueMonth: string
   nextIssueMonth: string
-  availableUntil: string
-  currentPeriod: ReferencePeriod
-  nextPredictionPeriod: ReferencePeriod
+  dubaiDataAvailableUntil: string
+  fxDataAvailableUntil: string
+  effectiveDataUntil: string
+  currentPeriod: {
+    startDate: string
+    endDate: string
+    start: string
+    end: string
+    averageUsd: number | null
+    averageKrw: number | null
+    dataCount: number
+  }
+  nextPredictionPeriod: {
+    startDate: string
+    endDate: string
+    start: string
+    end: string
+    averageUsd: number | null
+    averageKrw: number | null
+    dataCount: number
+  }
   fullNextReferencePeriod: ReferencePeriod
-  currentAverage: number | null
-  currentCount: number
-  nextAverage: number | null
-  nextCount: number
   changeRate: number | null
-  confidence: {
-    progress: number
+  selectedRoute: RouteDistance | null
+  distanceImpact: {
+    level: '낮음' | '보통' | '높음' | '매우 높음'
     label: string
+    weight: number
+    routeImpactScore: number | null
+    routeImpactLabel: '낮음' | '보통' | '높음' | '매우 높음' | null
   }
-  recommendation: Recommendation
-  recommendationText: {
-    title: string
-    desc: string
+  routeAdjustedIndex: {
+    current: number | null
+    next: number | null
+    unit: '원/bbl·천마일'
   }
-  nowPrice?: number | null
-  laterPrice?: number | null
-  monthlyAverages?: {month:string, average:number|null, count:number}[]
+  confidenceProgress: number
+  confidenceLabel: '낮음' | '보통' | '높음'
+  warnings: string[]
 }

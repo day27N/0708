@@ -7,59 +7,50 @@ import PeriodComparisonTable from '../components/PeriodComparisonTable'
 import DataSourceNotice from '../components/DataSourceNotice'
 import KeyMetrics from '../components/KeyMetrics'
 import { DailyDubaiOilPrice, AnalysisResult, RouteDistance } from '../types/fuel'
-import { getIssueMonth, getNextIssueMonth, getCurrentReferencePeriod, getNextPredictionPeriod, getFullNextReferencePeriod } from '../lib/dateUtils'
-import { calculateAverage, calculateChangeRate, calculateConfidenceProgress, aggregateMonthly } from '../lib/fuelCalculator'
-import { recommendationText, getRecommendation } from '../lib/recommendation'
+import { DailyDubaiKrwPoint, DailyFxRate } from '../types/fx'
+import { getIssueMonth, getCurrentReferencePeriod, getNextPredictionPeriod, getFullNextReferencePeriod } from '../lib/dateUtils'
 import { loadInternalDubaiCsv } from '../data/internalDubaiCsv'
+import { loadFxRates } from '../data/fxRates'
+import { combineDubaiWithFx } from '../lib/dubaiFxCombiner'
+import { analyzeKrwFuelData } from '../lib/dailyAnalysis'
 import { routes, routeCountries, defaultRoute } from '../data/routes'
 
 export default function Page(){
   const todayStr = new Date().toISOString().slice(0,10)
   const [prices, setPrices] = useState<DailyDubaiOilPrice[]>([])
+  const [fxRates, setFxRates] = useState<DailyFxRate[]>([])
+  const [combinedPrices, setCombinedPrices] = useState<DailyDubaiKrwPoint[]>([])
   const [selectedTicketingDate, setSelectedTicketingDate] = useState<string>(todayStr)
   const [selectedCountry, setSelectedCountry] = useState<string>('일본')
   const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(defaultRoute)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
-  // 목적지 선택은 사용자 맥락과 거리구간 표시용입니다.
-  // 발권 타이밍 추천 자체는 기존 두바이유 추세 기반 로직을 유지합니다.
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  const analyzeTicketingDate = (date: string, loadedPrices: DailyDubaiOilPrice[]): AnalysisResult => {
+  const formatKrw = (value: number | null) => value === null ? '-' : Math.round(value).toLocaleString()
+  const formatRouteIndex = (value: number | null) => value === null ? '-' : `${Math.round(value).toLocaleString()}원/bbl·천마일`
+
+  const analyzeTicketingDate = async (date: string, route: RouteDistance | null): Promise<AnalysisResult | null> => {
+    if (prices.length === 0 || fxRates.length === 0 || combinedPrices.length === 0) {
+      return null
+    }
+
     const ticketDate = new Date(date)
     const issueMonth = getIssueMonth(ticketDate)
-    const nextIssueMonth = getNextIssueMonth(ticketDate)
     const currentPeriod = getCurrentReferencePeriod(issueMonth)
-    const nextPredictionPeriod = getNextPredictionPeriod(ticketDate, new Date(loadedPrices[loadedPrices.length - 1].date))
+    const nextPredictionPeriod = getNextPredictionPeriod(ticketDate, new Date(prices[prices.length - 1].date))
     const fullNextReferencePeriod = getFullNextReferencePeriod(ticketDate)
-    const currentCalc = calculateAverage(loadedPrices, currentPeriod.start, currentPeriod.end)
-    const nextCalc = calculateAverage(loadedPrices, nextPredictionPeriod.start, nextPredictionPeriod.end)
-    const changeRate = calculateChangeRate(currentCalc.average, nextCalc.average)
-    const confidence = calculateConfidenceProgress(date, fullNextReferencePeriod, loadedPrices[loadedPrices.length - 1].date)
-    const recommendation = getRecommendation(changeRate)
-    const recommendationTextValue = recommendationText(changeRate)
-    const monthly = aggregateMonthly(loadedPrices)
 
-    return {
-      selectedTicketingDate: date,
-      issueMonth,
-      nextIssueMonth,
-      availableUntil: loadedPrices[loadedPrices.length - 1].date,
+    return analyzeKrwFuelData(
+      date,
+      combinedPrices,
+      fxRates[fxRates.length - 1]?.date ?? date,
+      route,
       currentPeriod,
       nextPredictionPeriod,
       fullNextReferencePeriod,
-      currentAverage: currentCalc.average,
-      currentCount: currentCalc.count,
-      nextAverage: nextCalc.average,
-      nextCount: nextCalc.count,
-      changeRate,
-      confidence,
-      recommendation,
-      recommendationText: recommendationTextValue,
-      nowPrice: currentCalc.average,
-      laterPrice: nextCalc.average,
-      monthlyAverages: monthly,
-    }
+      prices[prices.length - 1].date,
+    )
   }
 
   useEffect(() => {
@@ -67,11 +58,27 @@ export default function Page(){
       try {
         setIsLoading(true)
         const loadedPrices = await loadInternalDubaiCsv()
+        const loadedFx = await loadFxRates()
+        const combined = combineDubaiWithFx(loadedPrices, loadedFx)
+
         setPrices(loadedPrices)
-        const initialResult = analyzeTicketingDate(selectedTicketingDate, loadedPrices)
+        setFxRates(loadedFx)
+        setCombinedPrices(combined)
+
+        const initialResult = await analyzeKrwFuelData(
+          todayStr,
+          combined,
+          loadedFx[loadedFx.length - 1]?.date ?? todayStr,
+          defaultRoute,
+          getCurrentReferencePeriod(getIssueMonth(new Date(todayStr))),
+          getNextPredictionPeriod(new Date(todayStr), new Date(loadedPrices[loadedPrices.length - 1].date)),
+          getFullNextReferencePeriod(new Date(todayStr)),
+          loadedPrices[loadedPrices.length - 1].date,
+        )
+
         setAnalysisResult(initialResult)
       } catch (e) {
-        setError('두바이유 데이터를 불러오지 못했습니다.')
+        setError('데이터를 불러오지 못했습니다. 다시 시도해주세요.')
       } finally {
         setIsLoading(false)
       }
@@ -80,41 +87,45 @@ export default function Page(){
     init()
   }, [])
 
-  const handleTicketingDateChange = (date: string) => {
+  const handleTicketingDateChange = async (date: string) => {
     setSelectedTicketingDate(date)
-    if (prices.length > 0) {
-      const result = analyzeTicketingDate(date, prices)
-      console.log('selectedTicketingDate:', date)
-      console.log('analysis result:', result)
-      setAnalysisResult(result)
+    if (prices.length > 0 && fxRates.length > 0 && combinedPrices.length > 0) {
+      const result = await analyzeTicketingDate(date, selectedRoute)
+      if (result) setAnalysisResult(result)
     }
   }
 
-  const handleCountryChange = (country: string) => {
+  const handleCountryChange = async (country: string) => {
     setSelectedCountry(country)
     const nextRoute = routes.find(route => route.country === country) ?? defaultRoute
     setSelectedRoute(nextRoute)
+    if (prices.length > 0 && fxRates.length > 0 && combinedPrices.length > 0) {
+      const result = await analyzeTicketingDate(selectedTicketingDate, nextRoute)
+      if (result) setAnalysisResult(result)
+    }
   }
 
-  const handleRouteChange = (destinationCode: string) => {
+  const handleRouteChange = async (destinationCode: string) => {
     const nextRoute = routes.find(route => route.destinationCode === destinationCode)
     if (nextRoute) {
       setSelectedRoute(nextRoute)
+      if (prices.length > 0 && fxRates.length > 0 && combinedPrices.length > 0) {
+        const result = await analyzeTicketingDate(selectedTicketingDate, nextRoute)
+        if (result) setAnalysisResult(result)
+      }
     }
   }
 
-  const handleAnalyzeClick = () => {
-    if (prices.length === 0) {
-      setError('두바이유 데이터가 아직 준비되지 않았습니다.')
+  const handleAnalyzeClick = async () => {
+    if (prices.length === 0 || fxRates.length === 0 || combinedPrices.length === 0) {
+      setError('데이터가 아직 준비되지 않았습니다.')
       return
     }
-    const result = analyzeTicketingDate(selectedTicketingDate, prices)
-    console.log('handleAnalyzeClick selectedTicketingDate:', selectedTicketingDate)
-    console.log('analysis result:', result)
-    setAnalysisResult(result)
+    const result = await analyzeTicketingDate(selectedTicketingDate, selectedRoute)
+    if (result) setAnalysisResult(result)
   }
 
-  const renderStatusColor = analysisResult?.recommendation === 'BUY_NOW' ? 'from-orange-200 via-orange-100 to-orange-50 border-orange-300' : analysisResult?.recommendation === 'WAIT' ? 'from-emerald-200 via-emerald-100 to-emerald-50 border-emerald-300' : 'from-slate-200 via-slate-100 to-yellow-50 border-slate-300'
+  const statusColor = analysisResult?.status === 'BUY_NOW' ? 'from-orange-200 via-orange-100 to-orange-50 border-orange-300' : analysisResult?.status === 'WAIT' ? 'from-emerald-200 via-emerald-100 to-emerald-50 border-emerald-300' : 'from-slate-200 via-slate-100 to-yellow-50 border-slate-300'
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 px-4 py-6 sm:px-6">
@@ -160,15 +171,15 @@ export default function Page(){
               <div className={`rounded-[32px] border p-8 shadow-sm color-block-section-cream`}> 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6">
                   <div>
-                    <div className="inline-flex items-center rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm">{analysisResult.recommendation === 'BUY_NOW' ? '지금 발권 유리' : analysisResult.recommendation === 'WAIT' ? '기다리기 고려' : '중립'}</div>
-                    <h2 className="mt-5 text-3xl sm:text-4xl font-bold text-slate-950">{analysisResult.recommendationText.title}</h2>
-                    <p className="mt-4 text-slate-700 text-base max-w-2xl">{analysisResult.recommendationText.desc}</p>
+                    <div className="inline-flex items-center rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm">{analysisResult.status === 'BUY_NOW' ? '지금 발권 유리' : analysisResult.status === 'WAIT' ? '기다리기 고려' : '중립'}</div>
+                    <h2 className="mt-5 text-3xl sm:text-4xl font-bold text-slate-950">{analysisResult.title}</h2>
+                    <p className="mt-4 text-slate-700 text-base max-w-2xl">{analysisResult.description}</p>
                   </div>
                   <div className="rounded-3xl bg-white/90 border border-slate-200 p-6 text-center min-w-[180px]">
                     <div className="text-sm text-slate-500">변화율</div>
                     <div className="mt-3 text-4xl font-bold text-slate-950">{analysisResult.changeRate === null ? '-' : `${analysisResult.changeRate.toFixed(2)}%`}</div>
-                    <div className="mt-3 text-sm text-slate-500">신뢰도 {analysisResult.confidence.progress}% ({analysisResult.confidence.label})</div>
-                    <div className="mt-2 text-xs text-slate-500">데이터 기준일: {analysisResult.availableUntil}</div>
+                    <div className="mt-3 text-sm text-slate-500">신뢰도 {analysisResult.confidenceProgress}% ({analysisResult.confidenceLabel})</div>
+                    <div className="mt-2 text-xs text-slate-500">데이터 기준일: {analysisResult.effectiveDataUntil}</div>
                   </div>
                 </div>
 
@@ -189,12 +200,12 @@ export default function Page(){
               </div>
 
               <KeyMetrics
-                currentAverage={analysisResult.currentAverage === null ? '-' : analysisResult.currentAverage.toFixed(2)}
-                nextAverage={analysisResult.nextAverage === null ? '-' : analysisResult.nextAverage.toFixed(2)}
-                nowPrice={analysisResult.nowPrice === null ? '-' : analysisResult.nowPrice?.toFixed(2)}
-                laterPrice={analysisResult.laterPrice === null ? '-' : analysisResult.laterPrice?.toFixed(2)}
+                currentAverage={formatKrw(analysisResult.currentPeriod.averageKrw)}
+                nextAverage={formatKrw(analysisResult.nextPredictionPeriod.averageKrw)}
+                routeAdjustedCurrent={formatRouteIndex(analysisResult.routeAdjustedIndex.current)}
+                routeAdjustedNext={formatRouteIndex(analysisResult.routeAdjustedIndex.next)}
                 changeRate={analysisResult.changeRate === null ? '-' : `${analysisResult.changeRate.toFixed(2)}%`}
-                confidence={`${analysisResult.confidence.progress}% (${analysisResult.confidence.label})`}
+                confidence={`${analysisResult.confidenceProgress}% (${analysisResult.confidenceLabel})`}
               />
 
               {selectedRoute ? (
@@ -210,14 +221,15 @@ export default function Page(){
               <PeriodComparisonTable rows={[
                 { label: '현재 발권월 기준 기간', value: `${analysisResult.currentPeriod.start} ~ ${analysisResult.currentPeriod.end}` },
                 { label: '다음 발권월 예측 기간', value: `${analysisResult.nextPredictionPeriod.start} ~ ${analysisResult.nextPredictionPeriod.end}` },
-                { label: '직전 산정기간 평균', value: analysisResult.currentAverage === null ? '-' : analysisResult.currentAverage.toFixed(2) },
-                { label: '현재 진행 중 평균', value: analysisResult.nextAverage === null ? '-' : analysisResult.nextAverage.toFixed(2) },
-                { label: '데이터 개수', value: `${analysisResult.nextCount}` },
+                { label: '직전 산정기간 평균 (KRW/bbl)', value: formatKrw(analysisResult.currentPeriod.averageKrw) },
+                { label: '현재 진행 중 평균 (KRW/bbl)', value: formatKrw(analysisResult.nextPredictionPeriod.averageKrw) },
+                { label: '현재 발권월 데이터 개수', value: `${analysisResult.currentPeriod.dataCount}` },
+                { label: '예측 데이터 개수', value: `${analysisResult.nextPredictionPeriod.dataCount}` },
               ]} />
 
               {/* Monthly averages removed for customer-facing UI */}
 
-              <TrendChart prices={prices} currentPeriod={analysisResult.currentPeriod} nextPredictionPeriod={analysisResult.nextPredictionPeriod} />
+              <TrendChart prices={combinedPrices} currentPeriod={analysisResult.currentPeriod} nextPredictionPeriod={analysisResult.nextPredictionPeriod} />
 
               <section className="rounded-[32px] bg-white shadow-sm border border-slate-200 p-8">
                 <h3 className="text-xl font-semibold text-slate-950">어떻게 계산하나요?</h3>
