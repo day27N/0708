@@ -73,8 +73,13 @@ function formatPercent(value: number | null) {
   return value === null ? '-' : `${value.toFixed(2)}%`
 }
 
-function formatApproxKrw(value: number | null) {
-  return value === null ? '-' : `약 ${Math.round(value).toLocaleString()}원`
+function formatSignedRouteImpact(result: AnalysisResult) {
+  const impact = result.impactAmount.estimatedRouteImpactKrw
+  const delta = result.impactAmount.deltaKrwPerBarrel
+  if (impact === null || delta === null) return '-'
+
+  const signedImpact = delta < 0 ? -impact : impact
+  return `약 ${Math.round(signedImpact).toLocaleString()}원`
 }
 
 function getDirectionText(deltaKrwPerBarrel: number | null) {
@@ -82,6 +87,13 @@ function getDirectionText(deltaKrwPerBarrel: number | null) {
   if (deltaKrwPerBarrel > 0) return '지금 발권 쪽으로 기울 수 있어요'
   if (deltaKrwPerBarrel < 0) return '기다리는 쪽으로 기울 수 있어요'
   return '방향성은 거의 중립입니다'
+}
+
+function getRouteImpactTrendText(deltaKrwPerBarrel: number | null) {
+  if (deltaKrwPerBarrel === null) return '방향성 확인이 필요해요'
+  if (deltaKrwPerBarrel > 0) return '비용이 오르는 추세'
+  if (deltaKrwPerBarrel < 0) return '비용이 내려가는 추세'
+  return '비용 변화가 거의 없음'
 }
 
 function getImpactJudgment(result: AnalysisResult) {
@@ -389,7 +401,10 @@ export default function Page() {
                   <div className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
                     <div className="rounded-2xl bg-white/70 p-4">
                       <div className="font-semibold text-slate-500">거리반영 참고 영향액</div>
-                      <div className="mt-2 text-xl font-black text-slate-950">{formatApproxKrw(result.impactAmount.estimatedRouteImpactKrw)}</div>
+                      <div className="mt-2 text-xl font-black text-slate-950">{formatSignedRouteImpact(result)}</div>
+                      <div className="mt-1 break-keep text-xs font-semibold text-slate-500">
+                        {getRouteImpactTrendText(result.impactAmount.deltaKrwPerBarrel)} · 편도 기준
+                      </div>
                     </div>
                     <div className="rounded-2xl bg-white/70 p-4">
                       <div className="font-semibold text-slate-500">방향성</div>
@@ -401,7 +416,7 @@ export default function Page() {
                     </div>
                   </div>
                   <p className="mt-4 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
-                    5만 원 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 참고 지표입니다.
+                    5만 원 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 편도 기준 참고 지표입니다.
                   </p>
                 </div>
 
@@ -440,7 +455,7 @@ export default function Page() {
             <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
               <h2 className="text-lg font-bold text-slate-950">결과를 이렇게 해석해요</h2>
               <p className="mt-3 break-keep text-sm leading-7 text-slate-600">
-                유타는 실제 항공권 가격을 예측하는 서비스가 아니라, 유류비 관점에서 발권 타이밍을 참고하는 도구입니다. 단거리 노선은 변화율이 커도 체감 영향이 작을 수 있고, 장거리 노선은 같은 변화율이라도 거리반영 참고 영향액이 커질 수 있습니다.
+                유타는 실제 항공권 가격을 예측하는 서비스가 아니라, 유류비 관점에서 발권 타이밍을 참고하는 도구입니다. 단거리 노선은 변화율이 커도 체감 영향이 작을 수 있고, 장거리 노선은 같은 변화율이라도 편도 기준 거리반영 참고 영향액이 커질 수 있습니다.
               </p>
             </section>
 
@@ -476,7 +491,8 @@ export default function Page() {
             </div>
 
             <KeyMetrics
-              routeImpactAmount={formatApproxKrw(result.impactAmount.estimatedRouteImpactKrw)}
+              routeImpactAmount={formatSignedRouteImpact(result)}
+              routeImpactTrend={`${getRouteImpactTrendText(result.impactAmount.deltaKrwPerBarrel)} · 편도 기준`}
               currentAverage={`${formatKrw(result.currentPeriod.averageKrw)}원/bbl`}
               currentAverageSub={`${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`}
               nextAverage={`${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`}
@@ -520,11 +536,11 @@ export default function Page() {
                 <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
                 <div>
                   <h3 className="font-bold text-slate-800">왜 5만 원 기준을 쓰나요?</h3>
-                  <p className="mt-1">유류비 지표의 변화율이 커도 단거리 노선에서는 실제 체감 차이가 작을 수 있습니다. 그래서 유타는 원화 환산 Dubai 변화폭에 선택 노선의 운항거리를 반영한 참고 영향액을 계산하고, 5만 원 이상일 때 유의미한 차이로 표시합니다.</p>
+                  <p className="mt-1">유류비 지표의 변화율이 커도 단거리 노선에서는 실제 체감 차이가 작을 수 있습니다. 그래서 유타는 원화 환산 Dubai 변화폭에 선택 노선의 운항거리를 반영한 편도 기준 참고 영향액을 계산하고, 5만 원 이상일 때 유의미한 차이로 표시합니다.</p>
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800">실제 유류할증료 금액인가요?</h3>
-                  <p className="mt-1">아닙니다. 이 값은 실제 항공사별 유류할증료 고시 금액이 아닙니다. Dubai 가격, USD/KRW 환율, 노선 운항거리를 결합한 참고 지표입니다. 실제 금액은 항공사별 고시표와 거리구간에 따라 달라질 수 있습니다.</p>
+                  <p className="mt-1">아닙니다. 이 값은 실제 항공사별 유류할증료 고시 금액이 아닙니다. Dubai 가격, USD/KRW 환율, 노선 운항거리를 결합한 편도 기준 참고 지표입니다. 실제 금액은 항공사별 고시표와 거리구간에 따라 달라질 수 있습니다.</p>
                 </div>
               </div>
             </section>

@@ -2,6 +2,7 @@ import React from 'react'
 
 type KeyMetricsProps = {
   routeImpactAmount: string
+  routeImpactTrend: string
   currentAverage: string
   currentAverageSub: string
   nextAverage: string
@@ -31,6 +32,7 @@ function MetricCard({ label, value, sub }: MetricItem) {
 
 export default function KeyMetrics({
   routeImpactAmount,
+  routeImpactTrend,
   currentAverage,
   currentAverageSub,
   nextAverage,
@@ -43,7 +45,7 @@ export default function KeyMetrics({
     {
       label: '거리반영 참고 영향액',
       value: routeImpactAmount,
-      sub: '실제 유류할증료 금액 아님',
+      sub: routeImpactTrend,
     },
     {
       label: '직전 산정기간 원화 유류비 지표',
