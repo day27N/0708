@@ -10,6 +10,19 @@ export type ReferencePeriod = {
   end: string;   // YYYY-MM-DD
 }
 
+export type RouteDistance = {
+  originCode: string;
+  originName: string;
+  destinationCode: string;
+  destinationName: string;
+  city: string;
+  country: string;
+  distanceKm: number;
+  distanceMile: number;
+  distanceBandLabel: string;
+  source: "MOLIT_ROUTE_DISTANCE";
+}
+
 export type Recommendation = "BUY_NOW" | "WAIT" | "NEUTRAL";
 
 export type AnalysisResult = {

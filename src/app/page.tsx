@@ -1,22 +1,27 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import Hero from '../components/Hero'
-import FuelTimingCard from '../components/FuelTimingCard'
+import RouteInputForm from '../components/RouteInputForm'
 import TrendChart from '../components/TrendChart'
 import PeriodComparisonTable from '../components/PeriodComparisonTable'
 import DataSourceNotice from '../components/DataSourceNotice'
 import KeyMetrics from '../components/KeyMetrics'
-import { DailyDubaiOilPrice, AnalysisResult } from '../types/fuel'
+import { DailyDubaiOilPrice, AnalysisResult, RouteDistance } from '../types/fuel'
 import { getIssueMonth, getNextIssueMonth, getCurrentReferencePeriod, getNextPredictionPeriod, getFullNextReferencePeriod } from '../lib/dateUtils'
 import { calculateAverage, calculateChangeRate, calculateConfidenceProgress, aggregateMonthly } from '../lib/fuelCalculator'
 import { recommendationText, getRecommendation } from '../lib/recommendation'
 import { loadInternalDubaiCsv } from '../data/internalDubaiCsv'
+import { routes, routeCountries, defaultRoute } from '../data/routes'
 
 export default function Page(){
   const todayStr = new Date().toISOString().slice(0,10)
   const [prices, setPrices] = useState<DailyDubaiOilPrice[]>([])
   const [selectedTicketingDate, setSelectedTicketingDate] = useState<string>(todayStr)
+  const [selectedCountry, setSelectedCountry] = useState<string>('일본')
+  const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(defaultRoute)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  // 목적지 선택은 사용자 맥락과 거리구간 표시용입니다.
+  // 발권 타이밍 추천 자체는 기존 두바이유 추세 기반 로직을 유지합니다.
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -85,6 +90,19 @@ export default function Page(){
     }
   }
 
+  const handleCountryChange = (country: string) => {
+    setSelectedCountry(country)
+    const nextRoute = routes.find(route => route.country === country) ?? defaultRoute
+    setSelectedRoute(nextRoute)
+  }
+
+  const handleRouteChange = (destinationCode: string) => {
+    const nextRoute = routes.find(route => route.destinationCode === destinationCode)
+    if (nextRoute) {
+      setSelectedRoute(nextRoute)
+    }
+  }
+
   const handleAnalyzeClick = () => {
     if (prices.length === 0) {
       setError('두바이유 데이터가 아직 준비되지 않았습니다.')
@@ -113,6 +131,15 @@ export default function Page(){
         </section>
 
         <section className="grid gap-6">
+          <RouteInputForm
+            countries={routeCountries}
+            routes={routes}
+            selectedCountry={selectedCountry}
+            selectedRoute={selectedRoute}
+            onCountryChange={handleCountryChange}
+            onRouteChange={handleRouteChange}
+          />
+
           <div className="rounded-[28px] bg-white shadow-sm border border-slate-200 p-6">
             <div className="text-sm text-slate-500 font-medium mb-2">이 날짜에 발권한다면?</div>
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
@@ -170,6 +197,16 @@ export default function Page(){
                 confidence={`${analysisResult.confidence.progress}% (${analysisResult.confidence.label})`}
               />
 
+              {selectedRoute ? (
+                <div className="mt-6 rounded-[28px] bg-slate-50 border border-slate-200 p-6">
+                  <div className="text-sm uppercase tracking-[0.2em] text-slate-500">선택 노선</div>
+                  <div className="mt-3 text-lg font-semibold text-slate-900">{selectedRoute.originName} {selectedRoute.originCode} → {selectedRoute.destinationName} {selectedRoute.destinationCode}</div>
+                  <div className="mt-3 text-sm text-slate-700">운항거리: {selectedRoute.distanceMile.toLocaleString()} mile / {selectedRoute.distanceKm.toLocaleString()} km</div>
+                  <div className="mt-2 text-sm text-slate-700">거리구간: {selectedRoute.distanceBandLabel}</div>
+                  <div className="mt-3 text-xs text-slate-500">거리구간은 실제 항공사별 유류할증료 금액 계산이 아니라, 운항거리 기반 참고 정보입니다.</div>
+                </div>
+              ) : null}
+
               <PeriodComparisonTable rows={[
                 { label: '현재 발권월 기준 기간', value: `${analysisResult.currentPeriod.start} ~ ${analysisResult.currentPeriod.end}` },
                 { label: '다음 발권월 예측 기간', value: `${analysisResult.nextPredictionPeriod.start} ~ ${analysisResult.nextPredictionPeriod.end}` },
@@ -185,8 +222,12 @@ export default function Page(){
               <section className="rounded-[32px] bg-white shadow-sm border border-slate-200 p-8">
                 <h3 className="text-xl font-semibold text-slate-950">어떻게 계산하나요?</h3>
                 <p className="mt-4 text-slate-600 leading-7">현재 발권월 기준으로 전전월 16일~전월 15일까지의 Dubai 평균을 기준선으로 삼습니다. 그 다음, 다음 발권월 예측 기간은 전월 16일부터 선택한 발권일까지 계산하되, 다음 발권월 전체 기간 종료일(15일)을 넘기지 않습니다.</p>
+                <p className="mt-4 text-slate-600 leading-7">국제선 유류할증료는 단순 국가명이 아니라 운항거리 구간과 관련될 수 있습니다. 그래서 유타는 선택한 목적지의 공항 간 대권거리와 거리구간을 함께 보여줍니다.</p>
+                <p className="mt-4 text-slate-600 leading-7">현재 버전에서는 거리구간을 실제 유류할증료 금액 계산에 직접 반영하지 않습니다. 발권 타이밍 추천은 두바이유 추세 기준이며, 실제 유류할증료 금액은 항공사별 고시표와 거리구간에 따라 달라질 수 있습니다.</p>
                 <p className="mt-4 text-slate-600 leading-7">이 결과는 Dubai 유가 추세를 참고한 것이며, 실제 항공사 유류할증료 및 공급/수요 상황과는 다를 수 있습니다. 발권 결정 전에는 항공권 운임과 좌석 상황을 함께 확인하세요.</p>
               </section>
+
+              <DataSourceNotice />
             </>
           )}
         </section>
