@@ -39,3 +39,17 @@ npm run dev
 - 오피넷 자동 다운로드/스케줄링
 - 항공사별 유류할증료 공시 데이터 연동
 - 환율 반영, 노선별 거리 구간 반영
+
+배포 (Vercel)
+1. GitHub에 푸시되어 있는 리포지토리(이미 푸시됨)를 Vercel에 연결합니다.
+2. Vercel → New Project → `day27N/0708` 선택 → Project Name 입력 → Next.js로 자동 감지됩니다.
+3. Environment Variables(환경변수)를 추가합니다(대시보드 → Settings → Environment Variables):
+	- `NEXT_PUBLIC_SUPABASE_URL`
+	- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+	- `NEXT_PUBLIC_GA_ID`
+4. Deploy 버튼을 눌러 배포합니다. 배포가 완료되면 제공된 도메인에서 서비스 확인 가능합니다.
+
+환경변수 예시 파일: `.env.example`(리포지토리 루트)에 템플릿이 포함되어 있습니다.
+
+Supabase 연동 및 Google Analytics 연결은 배포 후 Vercel 환경변수로 값을 추가하면 됩니다.
+
