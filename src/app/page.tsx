@@ -6,7 +6,7 @@ import KeyMetrics from '../components/KeyMetrics'
 import PeriodComparisonTable from '../components/PeriodComparisonTable'
 import TrendChart from '../components/TrendChart'
 import { loadInternalDubaiCsv } from '../data/internalDubaiCsv'
-import { defaultRoute, routeCountries, routes } from '../data/routes'
+import { routeCountries, routes } from '../data/routes'
 import { loadFxRates } from '../data/fxRates'
 import { getCurrentReferencePeriod, getFullNextReferencePeriod, getIssueMonth, getNextPredictionPeriod } from '../lib/dateUtils'
 import { analyzeKrwFuelData } from '../lib/dailyAnalysis'
@@ -141,15 +141,16 @@ export default function Page() {
   const [prices, setPrices] = useState<DailyDubaiOilPrice[]>([])
   const [fxRates, setFxRates] = useState<DailyFxRate[]>([])
   const [combinedPrices, setCombinedPrices] = useState<DailyDubaiKrwPoint[]>([])
-  const [selectedTicketingDate, setSelectedTicketingDate] = useState(todayStr)
-  const [selectedCountry, setSelectedCountry] = useState(defaultRoute.country)
-  const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(defaultRoute)
-  const [selectedDestination, setSelectedDestination] = useState(defaultRoute.destinationCode)
+  const [selectedTicketingDate, setSelectedTicketingDate] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('')
+  const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(null)
+  const [selectedDestination, setSelectedDestination] = useState('')
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const currentRoutes = routes.filter(route => route.country === selectedCountry)
+  const currentRoutes = selectedCountry ? routes.filter(route => route.country === selectedCountry) : []
+  const canAnalyze = selectedRoute !== null && selectedTicketingDate !== ''
 
   const runAnalysis = (
     date: string,
@@ -158,7 +159,7 @@ export default function Page() {
     sourceFxRates = fxRates,
     sourceCombinedPrices = combinedPrices,
   ) => {
-    if (sourcePrices.length === 0 || sourceFxRates.length === 0 || sourceCombinedPrices.length === 0) return null
+    if (!date || !route || sourcePrices.length === 0 || sourceFxRates.length === 0 || sourceCombinedPrices.length === 0) return null
 
     const ticketDate = new Date(date)
     const latestDubaiDate = sourcePrices[sourcePrices.length - 1].date
@@ -190,7 +191,6 @@ export default function Page() {
         setPrices(loadedPrices)
         setFxRates(loadedFx)
         setCombinedPrices(combined)
-        setAnalysisResult(runAnalysis(todayStr, defaultRoute, loadedPrices, loadedFx, combined))
       } catch {
         setError('데이터를 불러오지 못했습니다. 다시 시도해주세요.')
       } finally {
@@ -202,12 +202,11 @@ export default function Page() {
   }, [])
 
   const handleCountryChange = (country: string) => {
-    const nextRoute = routes.find(route => route.country === country) ?? defaultRoute
     setSelectedCountry(country)
-    setSelectedRoute(nextRoute)
-    setSelectedDestination(nextRoute.destinationCode)
-    const result = runAnalysis(selectedTicketingDate, nextRoute)
-    if (result) setAnalysisResult(result)
+    setSelectedRoute(null)
+    setSelectedDestination('')
+    setAnalysisResult(null)
+    setError(null)
   }
 
   const handleRouteChange = (destinationCode: string) => {
@@ -218,16 +217,24 @@ export default function Page() {
     setSelectedRoute(nextRoute)
     setSelectedCountry(nextRoute.country)
     const result = runAnalysis(selectedTicketingDate, nextRoute)
-    if (result) setAnalysisResult(result)
+    setError(null)
+    setAnalysisResult(result)
   }
 
   const handleTicketingDateChange = (date: string) => {
     setSelectedTicketingDate(date)
     const result = runAnalysis(date, selectedRoute)
-    if (result) setAnalysisResult(result)
+    setError(null)
+    setAnalysisResult(result)
   }
 
   const handleAnalyzeClick = () => {
+    if (!canAnalyze) {
+      setAnalysisResult(null)
+      setError('지역과 발권일을 먼저 선택해주세요.')
+      return
+    }
+
     const result = runAnalysis(selectedTicketingDate, selectedRoute)
     if (result) {
       setError(null)
@@ -312,6 +319,7 @@ export default function Page() {
                 onChange={event => handleCountryChange(event.target.value)}
                 className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
+                <option value="">선택</option>
                 {routeCountries.map(country => (
                   <option key={country} value={country}>{country}</option>
                 ))}
@@ -323,8 +331,10 @@ export default function Page() {
               <select
                 value={selectedDestination}
                 onChange={event => handleRouteChange(event.target.value)}
+                disabled={!selectedCountry}
                 className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-950 outline-none transition focus:border-sky-300 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
+                <option value="">{selectedCountry ? '도시/공항을 선택해 주세요' : '지역을 선택해주세요'}</option>
                 {currentRoutes.map(route => (
                   <option key={route.destinationCode} value={route.destinationCode}>
                     {route.destinationName} ({route.destinationCode})
@@ -346,7 +356,8 @@ export default function Page() {
             <button
               type="button"
               onClick={handleAnalyzeClick}
-              className="h-12 rounded-2xl bg-sky-600 px-5 text-[0.95rem] font-bold text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 active:translate-y-0"
+              disabled={!canAnalyze}
+              className="h-12 rounded-2xl bg-sky-600 px-5 text-[0.95rem] font-bold text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 active:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:translate-y-0"
             >
               발권 타이밍 보기
             </button>
@@ -380,9 +391,21 @@ export default function Page() {
           <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5 text-rose-700">{error}</div>
         ) : null}
 
-        {isLoading || !result ? (
+        {isLoading ? (
           <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-8 text-slate-500 shadow-sm">
             데이터를 불러오는 중입니다. 잠시만 기다려주세요.
+          </section>
+        ) : !result ? (
+          <section className="mt-6 rounded-[28px] border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-6 shadow-sm sm:p-8">
+            <span className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-bold text-sky-700 shadow-sm">
+              지역을 선택해주세요
+            </span>
+            <h2 className="mt-5 break-keep text-[1.4rem] font-extrabold leading-[1.35] text-slate-950 sm:text-[1.8rem]">
+              목적지와 발권일을 고르면 결과가 표시돼요
+            </h2>
+            <p className="mt-3 max-w-[680px] break-keep text-sm leading-7 text-slate-600">
+              어디로 가는지와 발권일을 선택하면 유류비 관점의 발권 타이밍, 거리반영 참고 영향액, 추세 차트를 바로 확인할 수 있습니다.
+            </p>
           </section>
         ) : (
           <>
