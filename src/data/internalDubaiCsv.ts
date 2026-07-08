@@ -1,7 +1,9 @@
 import { parseOpinetCsv } from '../lib/csvParser'
 import { DailyDubaiOilPrice } from '../types/fuel'
 
-const INTERNAL_DUBAI_CSV = `date,Dubai
+// Try to load a public CSV file committed to `public/data/opinet_full.csv` first.
+// If not present or parsing fails, fall back to the small internal sample.
+const FALLBACK_CSV = `date,Dubai
 2026-05-16,95.0
 2026-05-17,95.3
 2026-05-18,95.6
@@ -66,6 +68,19 @@ const INTERNAL_DUBAI_CSV = `date,Dubai
 `
 
 export async function loadInternalDubaiCsv(): Promise<DailyDubaiOilPrice[]> {
-  const parsed = parseOpinetCsv(INTERNAL_DUBAI_CSV)
+  // attempt to fetch the committed public CSV
+  try {
+    const resp = await fetch('/data/opinet_full.csv')
+    if (resp.ok) {
+      const text = await resp.text()
+      const parsed = parseOpinetCsv(text)
+      if (parsed.data && parsed.data.length > 0) return parsed.data
+    }
+  } catch (e) {
+    // ignore and fallback
+  }
+
+  // fallback to small internal sample
+  const parsed = parseOpinetCsv(FALLBACK_CSV)
   return parsed.data
 }

@@ -24,6 +24,23 @@ function tryParseDate(s: string) {
   // fallback: try ISO
   const d2 = new Date(s)
   if (!isNaN(d2.getTime())) return format(d2, 'yyyy-MM-dd')
+
+  // fallback: extract digit groups (handles formats like 2008년07월07일 or 08-07-07)
+  const parts = (s || '').match(/\d+/g)
+  if (parts && parts.length >= 3) {
+    let [y, m, d] = parts
+    if (y.length === 2) {
+      const ny = Number(y)
+      y = (ny >= 50 ? 1900 + ny : 2000 + ny).toString()
+    }
+    try {
+      const dd = new Date(Number(y), Number(m) - 1, Number(d))
+      if (!isNaN(dd.getTime())) return format(dd, 'yyyy-MM-dd')
+    } catch (e) {
+      // ignore
+    }
+  }
+
   return null
 }
 
