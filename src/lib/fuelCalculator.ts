@@ -32,3 +32,16 @@ export function calculateConfidenceProgress(ticketingDate: string, fullNextRefer
   const label = progress < 30 ? '낮음' : progress < 70 ? '보통' : '높음'
   return { progress, label }
 }
+
+export function aggregateMonthly(prices: DailyDubaiOilPrice[]) {
+  const map: Record<string, {sum:number,count:number}> = {}
+  prices.forEach(p => {
+    const d = parseISO(p.date)
+    const month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+    if (!map[month]) map[month] = { sum: 0, count: 0 }
+    map[month].sum += p.value
+    map[month].count += 1
+  })
+  const months = Object.keys(map).sort()
+  return months.map(m => ({ month: m, average: map[m].count > 0 ? map[m].sum / map[m].count : null, count: map[m].count }))
+}

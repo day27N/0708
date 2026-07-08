@@ -34,4 +34,7 @@ export type AnalysisResult = {
     title: string
     desc: string
   }
+  nowPrice?: number | null
+  laterPrice?: number | null
+  monthlyAverages?: {month:string, average:number|null, count:number}[]
 }

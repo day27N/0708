@@ -8,7 +8,7 @@ import DataSourceNotice from '../components/DataSourceNotice'
 import KeyMetrics from '../components/KeyMetrics'
 import { DailyDubaiOilPrice, AnalysisResult } from '../types/fuel'
 import { getIssueMonth, getNextIssueMonth, getCurrentReferencePeriod, getNextPredictionPeriod, getFullNextReferencePeriod } from '../lib/dateUtils'
-import { calculateAverage, calculateChangeRate, calculateConfidenceProgress } from '../lib/fuelCalculator'
+import { calculateAverage, calculateChangeRate, calculateConfidenceProgress, aggregateMonthly } from '../lib/fuelCalculator'
 import { recommendationText, getRecommendation } from '../lib/recommendation'
 import { loadInternalDubaiCsv } from '../data/internalDubaiCsv'
 
@@ -33,6 +33,7 @@ export default function Page(){
     const confidence = calculateConfidenceProgress(date, fullNextReferencePeriod, loadedPrices[loadedPrices.length - 1].date)
     const recommendation = getRecommendation(changeRate)
     const recommendationTextValue = recommendationText(changeRate)
+    const monthly = aggregateMonthly(loadedPrices)
 
     return {
       selectedTicketingDate: date,
@@ -50,6 +51,9 @@ export default function Page(){
       confidence,
       recommendation,
       recommendationText: recommendationTextValue,
+      nowPrice: currentCalc.average,
+      laterPrice: nextCalc.average,
+      monthlyAverages: monthly,
     }
   }
 
@@ -163,6 +167,8 @@ export default function Page(){
               <KeyMetrics
                 currentAverage={analysisResult.currentAverage === null ? '-' : analysisResult.currentAverage.toFixed(2)}
                 nextAverage={analysisResult.nextAverage === null ? '-' : analysisResult.nextAverage.toFixed(2)}
+                nowPrice={analysisResult.nowPrice === null ? '-' : analysisResult.nowPrice?.toFixed(2)}
+                laterPrice={analysisResult.laterPrice === null ? '-' : analysisResult.laterPrice?.toFixed(2)}
                 changeRate={analysisResult.changeRate === null ? '-' : `${analysisResult.changeRate.toFixed(2)}%`}
                 confidence={`${analysisResult.confidence.progress}% (${analysisResult.confidence.label})`}
               />
@@ -174,6 +180,22 @@ export default function Page(){
                 { label: '현재 진행 중 평균', value: analysisResult.nextAverage === null ? '-' : analysisResult.nextAverage.toFixed(2) },
                 { label: '데이터 개수', value: `${analysisResult.nextCount}` },
               ]} />
+
+              <section className="mt-6 rounded-3xl bg-white p-4 border border-slate-200">
+                <h4 className="font-semibold text-lg mb-2">월별 평균 (월 - 평균 - 데이터 수)</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-slate-500"><th className="px-2 py-1">월</th><th className="px-2 py-1">평균</th><th className="px-2 py-1">데이터 수</th></tr>
+                    </thead>
+                    <tbody>
+                      {analysisResult.monthlyAverages?.map(m => (
+                        <tr key={m.month} className="border-t"><td className="px-2 py-1">{m.month}</td><td className="px-2 py-1 text-right">{m.average === null ? '-' : m.average.toFixed(2)}</td><td className="px-2 py-1 text-right">{m.count}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
 
               <TrendChart prices={prices} currentPeriod={analysisResult.currentPeriod} nextPredictionPeriod={analysisResult.nextPredictionPeriod} />
 

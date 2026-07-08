@@ -2,8 +2,8 @@ import { Recommendation } from '../types/fuel'
 
 export function getRecommendation(changeRate: number|null) {
   if (changeRate === null || isNaN(changeRate)) return 'NEUTRAL' as Recommendation
-  if (changeRate >= 7) return 'BUY_NOW' as Recommendation
-  if (changeRate <= -7) return 'WAIT' as Recommendation
+  if (changeRate >= 5) return 'BUY_NOW' as Recommendation
+  if (changeRate <= -5) return 'WAIT' as Recommendation
   return 'NEUTRAL' as Recommendation
 }
 
