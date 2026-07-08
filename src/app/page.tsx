@@ -75,6 +75,22 @@ function BrandMark() {
   )
 }
 
+function BalancedResultTitle({ title }: { title: string }) {
+  const [prefix, ...rest] = title.split(', ')
+  const suffix = rest.join(', ')
+
+  if (!suffix) {
+    return <>{title}</>
+  }
+
+  return (
+    <>
+      <span className="block">{prefix},</span>
+      <span className="mt-1 block">{suffix}</span>
+    </>
+  )
+}
+
 export default function Page() {
   const todayStr = new Date().toISOString().slice(0, 10)
   const [prices, setPrices] = useState<DailyDubaiOilPrice[]>([])
@@ -279,8 +295,8 @@ export default function Page() {
                   <span className="inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-bold shadow-sm">
                     {statusLabel[result.status]}
                   </span>
-                  <h2 className="mt-5 max-w-[720px] break-keep text-[1.75rem] font-black leading-[1.25] text-slate-950 sm:text-[2.35rem]">
-                    {result.title}
+                  <h2 className="mt-5 max-w-[660px] break-keep text-[1.45rem] font-extrabold leading-[1.35] tracking-normal text-slate-950 sm:text-[1.9rem] lg:text-[2.05rem]">
+                    <BalancedResultTitle title={result.title} />
                   </h2>
                   <p className="mt-4 max-w-[760px] break-keep text-[0.98rem] leading-8 text-slate-700">
                     {result.description}
