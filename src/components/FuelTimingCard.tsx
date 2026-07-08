@@ -4,6 +4,7 @@ import { Recommendation } from '../types/fuel'
 const colors: Record<Recommendation,string> = {
   BUY_NOW: 'bg-green-50 border border-green-200',
   WAIT: 'bg-red-50 border border-red-200',
+  WEAK_SIGNAL: 'bg-sky-50 border border-sky-200',
   NEUTRAL: 'bg-yellow-50 border border-yellow-200',
   INSUFFICIENT_DATA: 'bg-slate-50 border border-slate-200',
 }

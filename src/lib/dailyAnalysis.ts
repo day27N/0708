@@ -3,6 +3,7 @@ import { ReferencePeriod, RouteDistance, AnalysisResult } from '../types/fuel'
 import { calculateAverage, calculateChangeRate, calculateConfidenceProgress } from './fuelCalculator'
 import { getRecommendation, recommendationText } from './recommendation'
 import { buildDistanceImpact, calculateRouteAdjustedIndex } from './routeImpact'
+import { SIGNIFICANT_IMPACT_KRW, WEAK_IMPACT_KRW } from './constants'
 
 function filterRange(points: DailyDubaiKrwPoint[], start: string, end: string) {
   return points.filter(point => point.date >= start && point.date <= end)
@@ -27,8 +28,20 @@ export function analyzeKrwFuelData(
   const nextAvgKrw = nextPoints.length ? nextPoints.reduce((sum, point) => sum + point.dubaiKrwPerBarrel, 0) / nextPoints.length : null
 
   const changeRate = calculateChangeRate(currentAvgKrw, nextAvgKrw)
-  const recommendation = getRecommendation(changeRate)
-  const recommendationTextValue = recommendationText(changeRate)
+  const deltaKrwPerBarrel = currentAvgKrw !== null && nextAvgKrw !== null ? nextAvgKrw - currentAvgKrw : null
+  const absDeltaKrwPerBarrel = deltaKrwPerBarrel !== null ? Math.abs(deltaKrwPerBarrel) : null
+  const estimatedRouteImpactKrw = absDeltaKrwPerBarrel !== null && selectedRoute
+    ? absDeltaKrwPerBarrel * (selectedRoute.distanceMile / 1000)
+    : null
+  const impactLevel = estimatedRouteImpactKrw === null
+    ? null
+    : estimatedRouteImpactKrw >= SIGNIFICANT_IMPACT_KRW
+      ? '유의미'
+      : estimatedRouteImpactKrw >= WEAK_IMPACT_KRW
+        ? '보통'
+        : '낮음'
+  const recommendation = getRecommendation(deltaKrwPerBarrel, estimatedRouteImpactKrw)
+  const recommendationTextValue = recommendationText(recommendation)
   const routeImpact = buildDistanceImpact(selectedRoute, changeRate)
   const currentRouteAdjusted = calculateRouteAdjustedIndex(currentAvgKrw, selectedRoute?.distanceMile ?? 0)
   const nextRouteAdjusted = calculateRouteAdjustedIndex(nextAvgKrw, selectedRoute?.distanceMile ?? 0)
@@ -66,6 +79,15 @@ export function analyzeKrwFuelData(
     },
     fullNextReferencePeriod,
     changeRate,
+    impactAmount: {
+      deltaKrwPerBarrel,
+      absDeltaKrwPerBarrel,
+      estimatedRouteImpactKrw,
+      significantThresholdKrw: SIGNIFICANT_IMPACT_KRW,
+      weakThresholdKrw: WEAK_IMPACT_KRW,
+      impactLevel,
+      isSignificant: estimatedRouteImpactKrw !== null && estimatedRouteImpactKrw >= SIGNIFICANT_IMPACT_KRW,
+    },
     selectedRoute,
     distanceImpact: routeImpact,
     routeAdjustedIndex: {

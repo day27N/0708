@@ -1,7 +1,7 @@
 import { ReferencePeriod, RouteDistance } from './fuel'
 
 export type AnalysisResult = {
-  status: 'BUY_NOW' | 'WAIT' | 'NEUTRAL' | 'INSUFFICIENT_DATA'
+  status: 'BUY_NOW' | 'WAIT' | 'WEAK_SIGNAL' | 'NEUTRAL' | 'INSUFFICIENT_DATA'
   title: string
   description: string
   selectedTicketingDate: string
@@ -25,6 +25,15 @@ export type AnalysisResult = {
     dataCount: number
   }
   changeRate: number | null
+  impactAmount: {
+    deltaKrwPerBarrel: number | null
+    absDeltaKrwPerBarrel: number | null
+    estimatedRouteImpactKrw: number | null
+    significantThresholdKrw: number
+    weakThresholdKrw: number
+    impactLevel: '낮음' | '보통' | '유의미' | null
+    isSignificant: boolean
+  }
   selectedRoute: RouteDistance | null
   distanceImpact: {
     level: '낮음' | '보통' | '높음' | '매우 높음'

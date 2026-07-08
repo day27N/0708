@@ -1,14 +1,14 @@
 import React from 'react'
 
 type KeyMetricsProps = {
+  routeImpactAmount: string
   currentAverage: string
   currentAverageSub: string
   nextAverage: string
   nextAverageSub: string
   changeRate: string
-  distanceImpact: string
-  routeAdjustedNext: string
-  confidence: string
+  routeDistance: string
+  distanceBand: string
 }
 
 type MetricItem = {
@@ -30,16 +30,21 @@ function MetricCard({ label, value, sub }: MetricItem) {
 }
 
 export default function KeyMetrics({
+  routeImpactAmount,
   currentAverage,
   currentAverageSub,
   nextAverage,
   nextAverageSub,
   changeRate,
-  distanceImpact,
-  routeAdjustedNext,
-  confidence,
+  routeDistance,
+  distanceBand,
 }: KeyMetricsProps) {
   const metrics: MetricItem[] = [
+    {
+      label: '거리반영 참고 영향액',
+      value: routeImpactAmount,
+      sub: '실제 유류할증료 금액 아님',
+    },
     {
       label: '직전 산정기간 원화 유류비 지표',
       value: currentAverage,
@@ -53,18 +58,15 @@ export default function KeyMetrics({
     {
       label: '변화율',
       value: changeRate,
+      sub: '원화 환산 Dubai 기준',
     },
     {
-      label: '거리 영향도',
-      value: distanceImpact,
+      label: '운항거리',
+      value: routeDistance,
     },
     {
-      label: '거리반영 원화 유류비 지표',
-      value: routeAdjustedNext,
-    },
-    {
-      label: '신뢰도',
-      value: confidence,
+      label: '거리구간',
+      value: distanceBand,
     },
   ]
 

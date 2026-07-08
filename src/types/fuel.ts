@@ -23,7 +23,7 @@ export type RouteDistance = {
   source: "MOLIT_ROUTE_DISTANCE";
 }
 
-export type Recommendation = "BUY_NOW" | "WAIT" | "NEUTRAL" | "INSUFFICIENT_DATA";
+export type Recommendation = "BUY_NOW" | "WAIT" | "WEAK_SIGNAL" | "NEUTRAL" | "INSUFFICIENT_DATA";
 
 export type AnalysisResult = {
   status: Recommendation
@@ -55,6 +55,15 @@ export type AnalysisResult = {
   }
   fullNextReferencePeriod: ReferencePeriod
   changeRate: number | null
+  impactAmount: {
+    deltaKrwPerBarrel: number | null
+    absDeltaKrwPerBarrel: number | null
+    estimatedRouteImpactKrw: number | null
+    significantThresholdKrw: number
+    weakThresholdKrw: number
+    impactLevel: '낮음' | '보통' | '유의미' | null
+    isSignificant: boolean
+  }
   selectedRoute: RouteDistance | null
   distanceImpact: {
     level: '낮음' | '보통' | '높음' | '매우 높음'

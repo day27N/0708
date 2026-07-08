@@ -17,6 +17,7 @@ import { DailyDubaiKrwPoint, DailyFxRate } from '../types/fx'
 const statusLabel = {
   BUY_NOW: '지금 발권 유리',
   WAIT: '기다리기 고려',
+  WEAK_SIGNAL: '방향성 있음',
   NEUTRAL: '큰 차이 없음',
   INSUFFICIENT_DATA: '데이터 부족',
 } as const
@@ -24,6 +25,7 @@ const statusLabel = {
 const statusStyle = {
   BUY_NOW: 'border-sky-100 bg-sky-50 text-sky-800',
   WAIT: 'border-emerald-100 bg-emerald-50 text-emerald-800',
+  WEAK_SIGNAL: 'border-blue-100 bg-blue-50 text-blue-800',
   NEUTRAL: 'border-slate-100 bg-slate-50 text-slate-700',
   INSUFFICIENT_DATA: 'border-amber-100 bg-amber-50 text-amber-800',
 } as const
@@ -49,8 +51,25 @@ function formatPercent(value: number | null) {
   return value === null ? '-' : `${value.toFixed(2)}%`
 }
 
-function formatRouteIndex(value: number | null) {
-  return value === null ? '-' : Math.round(value).toLocaleString()
+function formatApproxKrw(value: number | null) {
+  return value === null ? '-' : `약 ${Math.round(value).toLocaleString()}원`
+}
+
+function getDirectionText(deltaKrwPerBarrel: number | null) {
+  if (deltaKrwPerBarrel === null) return '-'
+  if (deltaKrwPerBarrel > 0) return '지금 발권 쪽으로 기울 수 있어요'
+  if (deltaKrwPerBarrel < 0) return '기다리는 쪽으로 기울 수 있어요'
+  return '방향성은 거의 중립입니다'
+}
+
+function getImpactJudgment(result: AnalysisResult) {
+  const impact = result.impactAmount.estimatedRouteImpactKrw
+  const threshold = result.impactAmount.significantThresholdKrw
+  if (impact === null) return '계산에 필요한 데이터가 부족합니다.'
+  if (impact >= threshold) {
+    return `5만 원 이상 차이로 판단되어, 유류비 관점에서는 ${result.impactAmount.deltaKrwPerBarrel !== null && result.impactAmount.deltaKrwPerBarrel < 0 ? '기다리는 전략도 가능해요.' : '지금 발권이 유리할 수 있어요.'}`
+  }
+  return '방향성은 보이지만, 5만 원 기준에는 못 미쳐요.'
 }
 
 function BrandMark() {
@@ -189,6 +208,9 @@ export default function Page() {
   const selectedRouteText = selectedRoute
     ? `${selectedRoute.originName} ${selectedRoute.originCode} → ${selectedRoute.destinationName} ${selectedRoute.destinationCode}`
     : '-'
+  const routeDistanceText = selectedRoute
+    ? `${selectedRoute.distanceMile.toLocaleString()} mile / ${selectedRoute.distanceKm.toLocaleString()} km`
+    : '-'
 
   return (
     <main className="min-h-screen bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
@@ -293,15 +315,29 @@ export default function Page() {
                   <p className="mt-4 max-w-[760px] break-keep text-[0.98rem] leading-8 text-slate-700">
                     {result.description}
                   </p>
-                  <p className="mt-3 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
-                    실제 항공사 유류할증료 금액이 아니라, 원화 환산 Dubai 가격과 운항거리를 함께 고려한 참고 지표입니다.
+                  <div className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
+                    <div className="rounded-2xl bg-white/70 p-4">
+                      <div className="font-semibold text-slate-500">거리반영 참고 영향액</div>
+                      <div className="mt-2 text-xl font-black text-slate-950">{formatApproxKrw(result.impactAmount.estimatedRouteImpactKrw)}</div>
+                    </div>
+                    <div className="rounded-2xl bg-white/70 p-4">
+                      <div className="font-semibold text-slate-500">방향성</div>
+                      <div className="mt-2 break-keep font-bold text-slate-950">{getDirectionText(result.impactAmount.deltaKrwPerBarrel)}</div>
+                    </div>
+                    <div className="rounded-2xl bg-white/70 p-4">
+                      <div className="font-semibold text-slate-500">변화율</div>
+                      <div className="mt-2 font-bold text-slate-950">{formatPercent(result.changeRate)}</div>
+                    </div>
+                  </div>
+                  <p className="mt-4 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
+                    5만 원 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 참고 지표입니다.
                   </p>
                 </div>
 
                 <div className="rounded-[22px] bg-white/80 p-5 text-left shadow-sm lg:mt-10 lg:min-w-[210px]">
-                  <div className="text-sm font-semibold text-slate-500">변화율</div>
-                  <div className="mt-2 whitespace-nowrap text-[2rem] font-black leading-tight text-slate-950">
-                    {formatPercent(result.changeRate)}
+                  <div className="text-sm font-semibold text-slate-500">판단</div>
+                  <div className="mt-2 break-keep text-base font-bold leading-7 text-slate-950">
+                    {getImpactJudgment(result)}
                   </div>
                   <div className="mt-2 text-sm text-slate-500">
                     계산에 사용한 최신 데이터일
@@ -317,7 +353,7 @@ export default function Page() {
                 </div>
                 <div className="rounded-2xl bg-white/70 p-3">
                   <div className="text-xs font-semibold text-slate-500">운항거리</div>
-                  <div className="mt-1 font-bold text-slate-950"><span className="whitespace-nowrap">{selectedRoute?.distanceMile.toLocaleString()} mile</span> / <span className="whitespace-nowrap">{selectedRoute?.distanceKm.toLocaleString()} km</span></div>
+                  <div className="mt-1 font-bold text-slate-950"><span className="whitespace-nowrap">{routeDistanceText}</span></div>
                 </div>
                 <div className="rounded-2xl bg-white/70 p-3">
                   <div className="text-xs font-semibold text-slate-500">거리구간</div>
@@ -362,14 +398,14 @@ export default function Page() {
             </div>
 
             <KeyMetrics
+              routeImpactAmount={formatApproxKrw(result.impactAmount.estimatedRouteImpactKrw)}
               currentAverage={`${formatKrw(result.currentPeriod.averageKrw)}원/bbl`}
               currentAverageSub={`${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`}
               nextAverage={`${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`}
               nextAverageSub={`${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`}
               changeRate={formatPercent(result.changeRate)}
-              distanceImpact={`${result.distanceImpact.level} / ${result.distanceImpact.label}`}
-              routeAdjustedNext={`${formatRouteIndex(result.routeAdjustedIndex.next)}원/bbl·천마일`}
-              confidence={`${result.confidenceProgress}% ${result.confidenceLabel}`}
+              routeDistance={routeDistanceText}
+              distanceBand={selectedRoute?.distanceBandLabel ?? '-'}
             />
 
             <PeriodComparisonTable
@@ -395,6 +431,14 @@ export default function Page() {
                 <p>현재 발권월 기준 기간과 다음 발권월 예측 기간의 원화 환산 Dubai 평균을 비교합니다.</p>
                 <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
                 <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
+                <div>
+                  <h3 className="font-bold text-slate-800">왜 5만 원 기준을 쓰나요?</h3>
+                  <p className="mt-1">유류비 지표의 변화율이 커도 단거리 노선에서는 실제 체감 차이가 작을 수 있습니다. 그래서 유타는 원화 환산 Dubai 변화폭에 선택 노선의 운항거리를 반영한 참고 영향액을 계산하고, 5만 원 이상일 때 유의미한 차이로 표시합니다.</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">실제 유류할증료 금액인가요?</h3>
+                  <p className="mt-1">아닙니다. 이 값은 실제 항공사별 유류할증료 고시 금액이 아닙니다. Dubai 가격, USD/KRW 환율, 노선 운항거리를 결합한 참고 지표입니다. 실제 금액은 항공사별 고시표와 거리구간에 따라 달라질 수 있습니다.</p>
+                </div>
               </div>
             </section>
 
@@ -406,6 +450,7 @@ export default function Page() {
                   <li>실제 항공사 유류할증료 고시표를 직접 반영하지 않습니다.</li>
                   <li>환율, 항공사 정책, 거리 구간, 발권일 기준 고시금액 등 실제 결제 요소와 차이가 있을 수 있습니다.</li>
                   <li>원유가격은 유류할증료 흐름을 참고하기 위한 간접 지표입니다.</li>
+                  <li>실제 결제 전 항공사 또는 예매처의 유류할증료와 총 결제금액을 확인하세요.</li>
                 </ul>
               </div>
             </section>
