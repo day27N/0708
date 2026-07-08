@@ -31,7 +31,7 @@ export function recommendationText(rec: Recommendation) {
     desc: '원화 환산 Dubai 지표는 움직이고 있지만, 선택 노선 기준 참고 영향액이 5만 원에는 미치지 않습니다. 유류비만으로 발권 시점을 결정하기보다는 항공권 기본 운임과 좌석 재고를 함께 확인하는 것이 좋아요.'
   }
   if (rec === 'NEUTRAL') return {
-    title: '유류비 관점에서는 큰 차이가 없어 보여요',
+    title: '유류비 관점에서는 차이가 크지 않아요',
     desc: '선택 노선 기준 참고 영향액이 작아, 유류비 관점에서는 발권 시점에 따른 차이가 크지 않아 보입니다.'
   }
   return {

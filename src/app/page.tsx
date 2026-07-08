@@ -39,6 +39,28 @@ const bookingSites = [
   { name: '아시아나', href: 'https://flyasiana.com/' },
 ]
 
+const useCases = [
+  {
+    title: '항공권을 지금 살지 고민될 때',
+    description: '다음 달 유류할증료 방향성을 보고 발권 타이밍을 참고할 수 있어요.',
+  },
+  {
+    title: '장거리 노선이라 유류비 부담이 걱정될 때',
+    description: '미국, 유럽처럼 운항거리가 긴 노선은 유류비 변화가 더 크게 느껴질 수 있어요.',
+  },
+  {
+    title: '유류할증료 변동 흐름을 보고 싶을 때',
+    description: '두바이유와 환율을 함께 반영해 원화 기준 유류비 흐름을 확인할 수 있어요.',
+  },
+]
+
+const sampleTrips = [
+  { label: '도쿄 여행', country: '일본', destinationCode: 'NRT' },
+  { label: '방콕 여행', country: '태국', destinationCode: 'BKK' },
+  { label: 'LA 여행', country: '미국', destinationCode: 'LAX' },
+  { label: '파리 여행', country: '프랑스', destinationCode: 'CDG' },
+]
+
 function formatKrw(value: number | null) {
   return value === null ? '-' : Math.round(value).toLocaleString()
 }
@@ -203,6 +225,23 @@ export default function Page() {
     }
   }
 
+  const handleSampleClick = (country: string, destinationCode: string) => {
+    const nextRoute = routes.find(route => route.destinationCode === destinationCode)
+    if (!nextRoute) return
+
+    const nextDate = prices[prices.length - 1]?.date ?? todayStr
+    setSelectedCountry(country)
+    setSelectedRoute(nextRoute)
+    setSelectedDestination(nextRoute.destinationCode)
+    setSelectedTicketingDate(nextDate)
+
+    const result = runAnalysis(nextDate, nextRoute)
+    if (result) {
+      setError(null)
+      setAnalysisResult(result)
+    }
+  }
+
   const result = analysisResult
   const latestDataDate = result?.effectiveDataUntil ?? '-'
   const selectedRouteText = selectedRoute
@@ -231,6 +270,18 @@ export default function Page() {
               <p className="break-keep">두바이유와 환율 추세를 기준으로 다음 달 유류할증료 방향성을 참고해요.</p>
               <p className="break-keep">출발일이 아니라 발권일 기준으로 계산됩니다.</p>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-6">
+          <h2 className="text-xl font-bold text-slate-950">이럴 때 써요</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {useCases.map(item => (
+              <div key={item.title} className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="break-keep text-base font-bold text-slate-950">{item.title}</h3>
+                <p className="mt-3 break-keep text-sm leading-6 text-slate-500">{item.description}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -291,6 +342,26 @@ export default function Page() {
           <p className="mt-4 break-keep text-sm leading-6 text-slate-500">
             출발지는 인천 ICN으로 고정됩니다. 항공사별 실제 고시 금액이 아니라, 원화 환산 Dubai 가격과 거리구간을 함께 고려한 참고 지표입니다.
           </p>
+          <div className="mt-6 rounded-[22px] border border-sky-100 bg-sky-50/60 p-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-950">바로 체험해보기</h3>
+                <p className="mt-1 break-keep text-sm leading-6 text-slate-500">샘플을 누르면 목적지와 발권일이 바뀌고 결과가 다시 계산됩니다.</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {sampleTrips.map(sample => (
+                <button
+                  key={sample.destinationCode}
+                  type="button"
+                  onClick={() => handleSampleClick(sample.country, sample.destinationCode)}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:text-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
+                >
+                  {sample.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
         {error ? (
@@ -366,6 +437,13 @@ export default function Page() {
               </div>
             </section>
 
+            <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+              <h2 className="text-lg font-bold text-slate-950">결과를 이렇게 해석해요</h2>
+              <p className="mt-3 break-keep text-sm leading-7 text-slate-600">
+                유타는 실제 항공권 가격을 예측하는 서비스가 아니라, 유류비 관점에서 발권 타이밍을 참고하는 도구입니다. 단거리 노선은 변화율이 커도 체감 영향이 작을 수 있고, 장거리 노선은 같은 변화율이라도 거리반영 참고 영향액이 커질 수 있습니다.
+              </p>
+            </section>
+
             <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-2">
               <TrendChart
                 prices={combinedPrices}
@@ -428,6 +506,15 @@ export default function Page() {
             <section className="mt-6 rounded-[26px] border border-slate-200 bg-[#FBFDFF] p-6 shadow-sm sm:p-7">
               <h2 className="text-lg font-bold text-slate-950">계산 방법</h2>
               <div className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-600">
+                <div>
+                  <h3 className="font-bold text-slate-800">유타는 어떤 용도인가요?</h3>
+                  <p className="mt-1">유타는 항공권 최저가 검색기가 아닙니다. 두바이유, USD/KRW 환율, 운항거리를 함께 참고해 유류할증료 방향성을 보는 발권 타이밍 참고 도구입니다.</p>
+                  <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+                    <li className="rounded-2xl bg-white p-3 shadow-sm">지금 발권하는 게 유류비 관점에서 유리할까?</li>
+                    <li className="rounded-2xl bg-white p-3 shadow-sm">다음 달까지 기다리면 부담이 줄어들 가능성이 있을까?</li>
+                    <li className="rounded-2xl bg-white p-3 shadow-sm">장거리 노선이라 변화가 더 크게 체감될까?</li>
+                  </ul>
+                </div>
                 <p>현재 발권월 기준 기간과 다음 발권월 예측 기간의 원화 환산 Dubai 평균을 비교합니다.</p>
                 <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
                 <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
