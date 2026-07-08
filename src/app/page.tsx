@@ -57,15 +57,7 @@ function BrandMark() {
   return (
     <div className="flex items-center gap-4">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-sky-100 bg-white shadow-sm">
-        <svg viewBox="0 0 64 64" aria-hidden="true" className="h-11 w-11 overflow-visible">
-          <path d="M15.5 42.5A23 23 0 0 1 32 9.5c8.3 0 15.6 4.4 19.7 11" fill="none" stroke="#1777F2" strokeWidth="6" strokeLinecap="round" />
-          <path d="M53.5 35.5A23 23 0 0 1 21 51" fill="none" stroke="#174FE5" strokeWidth="6" strokeLinecap="round" />
-          <path d="M12.5 47c7.1-1.8 13.7-5.5 19.8-11.1" fill="none" stroke="#1777F2" strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M27.5 35.5 46 17" fill="none" stroke="#0F2742" strokeWidth="4" strokeLinecap="round" />
-          <path d="M45.8 13.8 57 10.8 54 22l-4.2-3.2-8.7 8.7 7.1 2.6-3.3 3.3-10.6-1.2-1.2 10.6-3.3 3.3-2.6-7.1 8.7-8.7-3.2-4.2z" fill="#0F2742" />
-          <path d="M32 13v4.5M14 32h4.5M32 46.5V51" stroke="#174FE5" strokeWidth="3" strokeLinecap="round" />
-          <circle cx="32" cy="32" r="4.4" fill="#0F2742" />
-        </svg>
+        <span aria-hidden="true" className="text-3xl leading-none">🛬</span>
       </div>
       <div className="pt-0.5">
         <div className="text-[1.75rem] font-black leading-[1.05] text-[#0F2742] sm:text-[1.9rem]">유타</div>
