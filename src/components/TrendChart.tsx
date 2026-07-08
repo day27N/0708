@@ -80,7 +80,7 @@ export default function TrendChart({
   const krwValues = points.map(point => point.krwValue)
   const minKrw = Math.min(...krwValues)
   const maxKrw = Math.max(...krwValues)
-  const yPadding = Math.max((maxKrw - minKrw) * 0.18, maxKrw * 0.015, 1)
+  const yPadding = Math.max((maxKrw - minKrw) * 0.22, maxKrw * 0.018, 1)
   const yDomain: [number, number] = [minKrw - yPadding, maxKrw + yPadding]
 
   return (
@@ -92,7 +92,7 @@ export default function TrendChart({
         </p>
       </div>
 
-      <div className="mt-5 h-[260px] w-full">
+      <div className="mt-5 h-[240px] w-full">
         {points.length === 0 ? (
           <div className="flex h-full items-center justify-center rounded-[20px] bg-slate-50 text-sm text-slate-500">
             선택한 기간에 표시할 데이터가 없습니다.

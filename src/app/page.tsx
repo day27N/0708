@@ -55,9 +55,9 @@ function formatRouteIndex(value: number | null) {
 
 function BrandMark() {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 shadow-sm">
-        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-8 w-8">
+    <div className="flex items-center gap-4">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-slate-950 shadow-sm shadow-sky-100">
+        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-10 w-10">
           <circle cx="22" cy="22" r="15" fill="none" stroke="#38BDF8" strokeWidth="4" strokeLinecap="round" strokeDasharray="46 18" />
           <path d="M12 30c7-3 13-8 21-17" fill="none" stroke="#E0F2FE" strokeWidth="3.2" strokeLinecap="round" />
           <path d="M27 15l7-3-2.5 7 5 4-6.8.8-3.7 5.9-.6-7-6.5-2.4 6.2-2.4z" fill="#E0F2FE" />
@@ -65,8 +65,10 @@ function BrandMark() {
         </svg>
       </div>
       <div>
-        <div className="text-[1.45rem] font-black leading-none text-slate-950">유타</div>
-        <p className="mt-1 text-sm leading-none text-slate-500">두바이유 추세 기반 발권 타이밍</p>
+        <div className="text-[1.7rem] font-black leading-none text-slate-950 sm:text-[1.85rem]">
+          <span className="text-slate-950">유</span><span className="text-sky-700">타</span>
+        </div>
+        <p className="mt-1.5 text-[0.9rem] font-medium leading-none text-slate-600">두바이유 추세 기반 발권 타이밍</p>
       </div>
     </div>
   )
@@ -182,12 +184,15 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1120px]">
-        <header className="flex items-center justify-between border-b border-slate-200/80 pb-5">
+        <header className="flex items-center justify-between border-b border-slate-200/80 pb-6 pt-1">
           <BrandMark />
         </header>
 
         <section className="mt-8 rounded-[28px] border border-sky-100 bg-gradient-to-br from-white to-sky-50/70 px-6 py-8 shadow-sm sm:px-8 lg:px-10">
           <div className="max-w-3xl">
+            <div className="mb-4 inline-flex rounded-full border border-sky-100 bg-white/80 px-3.5 py-1.5 text-sm font-bold text-sky-700 shadow-sm">
+              유타 발권 타이밍
+            </div>
             <h1 className="max-w-[680px] break-keep text-[2rem] font-black leading-[1.18] tracking-normal text-slate-950 sm:text-[2.75rem]">
               이 날짜에 발권한다면?
             </h1>
@@ -353,7 +358,7 @@ export default function Page() {
             <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-950">바로 예매 사이트로 이동</h2>
+                  <h2 className="text-lg font-bold text-slate-950">바로 예매 사이트로 이동</h2>
                   <p className="mt-2 break-keep text-sm leading-6 text-slate-500">
                     원유가격 참고 후, 실제 항공권 검색은 아래 사이트에서 바로 이어서 할 수 있습니다.
                   </p>
@@ -375,8 +380,8 @@ export default function Page() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-              <h2 className="text-xl font-bold text-slate-950">계산 방법</h2>
+            <section className="mt-6 rounded-[26px] border border-slate-200 bg-[#FBFDFF] p-6 shadow-sm sm:p-7">
+              <h2 className="text-lg font-bold text-slate-950">계산 방법</h2>
               <div className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-600">
                 <p>현재 발권월 기준 기간과 다음 발권월 예측 기간의 원화 환산 Dubai 평균을 비교합니다.</p>
                 <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
@@ -384,14 +389,16 @@ export default function Page() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-[26px] border border-amber-100 bg-amber-50/70 p-6 shadow-sm sm:p-7">
-              <h2 className="text-xl font-bold text-slate-950">주의</h2>
-              <ul className="mt-4 space-y-3 break-keep text-sm leading-7 text-slate-700">
-                <li>이 앱은 실제 항공권 가격 예측 서비스가 아닙니다.</li>
-                <li>실제 항공사 유류할증료 고시표를 직접 반영하는 서비스가 아닙니다.</li>
-                <li>환율, 항공사 정책, 거리 구간, 발권일 기준 고시금액 등 실제 결제 요소와 차이가 있을 수 있습니다.</li>
-                <li>원유가격은 유류할증료 흐름을 참고하기 위한 간접 지표입니다.</li>
-              </ul>
+            <section className="mt-6 overflow-hidden rounded-[26px] border border-sky-100 bg-[#F8FBFF] shadow-sm">
+              <div className="border-l-4 border-sky-400 p-6 sm:p-7">
+                <h2 className="text-lg font-bold text-slate-950">이용 전 참고사항</h2>
+                <ul className="mt-4 space-y-3.5 break-keep text-sm leading-7 text-slate-600">
+                  <li>이 앱은 실제 항공권 가격 예측 서비스가 아닙니다.</li>
+                  <li>실제 항공사 유류할증료 고시표를 직접 반영하지 않습니다.</li>
+                  <li>환율, 항공사 정책, 거리 구간, 발권일 기준 고시금액 등 실제 결제 요소와 차이가 있을 수 있습니다.</li>
+                  <li>원유가격은 유류할증료 흐름을 참고하기 위한 간접 지표입니다.</li>
+                </ul>
+              </div>
             </section>
           </>
         )}
