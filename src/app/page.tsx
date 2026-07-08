@@ -62,7 +62,7 @@ function BrandMark() {
           <path d="M53.5 35.5A23 23 0 0 1 21 51" fill="none" stroke="#174FE5" strokeWidth="6" strokeLinecap="round" />
           <path d="M12.5 47c7.1-1.8 13.7-5.5 19.8-11.1" fill="none" stroke="#1777F2" strokeWidth="3.6" strokeLinecap="round" />
           <path d="M27.5 35.5 46 17" fill="none" stroke="#0F2742" strokeWidth="4" strokeLinecap="round" />
-          <path d="m43.5 18.8 9.8-3.5-3.7 9.3 6.1 5.2-8.3.7-4.8 7.3-.9-8.8-8-2.8 7.4-2.8z" fill="#0F2742" />
+          <path d="M45.8 13.8 57 10.8 54 22l-4.2-3.2-8.7 8.7 7.1 2.6-3.3 3.3-10.6-1.2-1.2 10.6-3.3 3.3-2.6-7.1 8.7-8.7-3.2-4.2z" fill="#0F2742" />
           <path d="M32 13v4.5M14 32h4.5M32 46.5V51" stroke="#174FE5" strokeWidth="3" strokeLinecap="round" />
           <circle cx="32" cy="32" r="4.4" fill="#0F2742" />
         </svg>
@@ -338,34 +338,6 @@ export default function Page() {
               </div>
             </section>
 
-            <KeyMetrics
-              currentAverage={`${formatKrw(result.currentPeriod.averageKrw)}원/bbl`}
-              currentAverageSub={`${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`}
-              nextAverage={`${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`}
-              nextAverageSub={`${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`}
-              changeRate={formatPercent(result.changeRate)}
-              distanceImpact={`${result.distanceImpact.level} / ${result.distanceImpact.label}`}
-              routeAdjustedNext={`${formatRouteIndex(result.routeAdjustedIndex.next)}원/bbl·천마일`}
-              confidence={`${result.confidenceProgress}% ${result.confidenceLabel}`}
-            />
-
-            <PeriodComparisonTable
-              rows={[
-                { label: '현재 발권월 기준 기간', value: `${result.currentPeriod.start} ~ ${result.currentPeriod.end}` },
-                { label: '다음 발권월 예측 기간', value: `${result.nextPredictionPeriod.start} ~ ${result.nextPredictionPeriod.end}` },
-                {
-                  label: '직전 산정기간 평균',
-                  value: `${formatKrw(result.currentPeriod.averageKrw)}원/bbl`,
-                  detail: `${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`,
-                },
-                {
-                  label: '현재 진행기간 평균',
-                  value: `${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`,
-                  detail: `${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`,
-                },
-              ]}
-            />
-
             <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-2">
               <TrendChart
                 prices={combinedPrices}
@@ -396,6 +368,34 @@ export default function Page() {
                 </div>
               </section>
             </div>
+
+            <KeyMetrics
+              currentAverage={`${formatKrw(result.currentPeriod.averageKrw)}원/bbl`}
+              currentAverageSub={`${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`}
+              nextAverage={`${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`}
+              nextAverageSub={`${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`}
+              changeRate={formatPercent(result.changeRate)}
+              distanceImpact={`${result.distanceImpact.level} / ${result.distanceImpact.label}`}
+              routeAdjustedNext={`${formatRouteIndex(result.routeAdjustedIndex.next)}원/bbl·천마일`}
+              confidence={`${result.confidenceProgress}% ${result.confidenceLabel}`}
+            />
+
+            <PeriodComparisonTable
+              rows={[
+                { label: '현재 발권월 기준 기간', value: `${result.currentPeriod.start} ~ ${result.currentPeriod.end}` },
+                { label: '다음 발권월 예측 기간', value: `${result.nextPredictionPeriod.start} ~ ${result.nextPredictionPeriod.end}` },
+                {
+                  label: '직전 산정기간 평균',
+                  value: `${formatKrw(result.currentPeriod.averageKrw)}원/bbl`,
+                  detail: `${formatUsd(result.currentPeriod.averageUsd)} USD/bbl`,
+                },
+                {
+                  label: '현재 진행기간 평균',
+                  value: `${formatKrw(result.nextPredictionPeriod.averageKrw)}원/bbl`,
+                  detail: `${formatUsd(result.nextPredictionPeriod.averageUsd)} USD/bbl`,
+                },
+              ]}
+            />
 
             <section className="mt-6 rounded-[26px] border border-slate-200 bg-[#FBFDFF] p-6 shadow-sm sm:p-7">
               <h2 className="text-lg font-bold text-slate-950">계산 방법</h2>
