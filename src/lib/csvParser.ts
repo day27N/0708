@@ -5,8 +5,8 @@ import { DailyDubaiOilPrice } from '../types/fuel'
 const DATE_KEYS = ['date','Date','기간','일자','DATE']
 const DUBAI_KEYS = ['Dubai','dubai','두바이','두바이유','DUBAI']
 
-function normalizeNumber(s: string) {
-  if (!s && s !== 0) return NaN
+function normalizeNumber(s: string | number | null | undefined) {
+  if (s === null || s === undefined || s === '') return NaN
   const cleaned = String(s).replace(/[,\s]/g, '').replace(/[^0-9.\-]/g, '')
   return cleaned === '' ? NaN : Number(cleaned)
 }
