@@ -44,6 +44,9 @@ export default function TrendChart({prices, currentPeriod, nextPredictionPeriod}
         <div className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-400" />현재 발권월 기준</div>
         <div className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-400" />다음 발권월 예측</div>
       </div>
+      <div className="mt-3 text-xs text-slate-400">
+        <div>설명: 차트는 커밋된 두바이 일별 가격을 표시합니다. 데이터 범위: {prices[0]?.date ?? '-'} — {prices[prices.length-1]?.date ?? '-'}. 현재 발권월 기준(파란 영역)은 전전월 16일~전월 15일이며, 주황 영역은 다음 발권월 예측 기간입니다. 데이터가 부족하면 평균/예측이 계산되지 않습니다.</div>
+      </div>
     </div>
   )
 }
