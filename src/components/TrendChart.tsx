@@ -48,6 +48,13 @@ export default function TrendChart({prices, currentPeriod, nextPredictionPeriod}
     )
   }
 
+  const renderPoint = (props: any) => {
+    const { cx, cy, fill, payload } = props
+    return (
+      <circle cx={cx} cy={cy} r={2.5} fill={fill} fillOpacity={payload.periodType === 'OTHER' ? 0.45 : 1} />
+    )
+  }
+
   return (
     <div className="mt-4 rounded-[28px] bg-white border border-slate-200 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
@@ -67,9 +74,9 @@ export default function TrendChart({prices, currentPeriod, nextPredictionPeriod}
             <Legend />
 
             {/* other data: muted small dots */}
-            <Scatter name="데이터" data={otherData} fill="#111827" shape="circle" fillOpacity={0.5} size={2} />
-            <Scatter name="현재 발권월 기준" data={currentData} fill="#0ea5e9" shape="circle" fillOpacity={0.9} size={3} />
-            <Scatter name="다음 발권월 예측" data={nextData} fill="#fb923c" shape="circle" fillOpacity={0.9} size={3} />
+            <Scatter name="데이터" data={otherData} fill="#111827" shape={renderPoint} />
+            <Scatter name="현재 발권월 기준" data={currentData} fill="#0ea5e9" shape={renderPoint} />
+            <Scatter name="다음 발권월 예측" data={nextData} fill="#fb923c" shape={renderPoint} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
