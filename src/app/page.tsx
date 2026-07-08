@@ -118,11 +118,11 @@ export default function Page(){
         <section className="grid gap-6">
           <div className="rounded-[28px] bg-white shadow-sm border border-slate-200 p-6">
             <div className="text-sm text-slate-500 font-medium mb-2">이 날짜에 발권한다면?</div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
               <div className="flex-1">
-                <input type="date" className="w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 text-base" value={selectedTicketingDate} onChange={e => handleTicketingDateChange(e.target.value)} />
+                <input type="date" className="w-full rounded-3xl border hairline bg-white px-4 py-3 text-base" value={selectedTicketingDate} onChange={e => handleTicketingDateChange(e.target.value)} />
               </div>
-              <button className="px-6 py-3 rounded-3xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition" onClick={handleAnalyzeClick}>발권 타이밍 보기</button>
+              <button className="btn-primary" onClick={handleAnalyzeClick}>발권 타이밍 보기</button>
             </div>
             <div className="mt-3 text-sm text-slate-500">선택한 날짜: {selectedTicketingDate}</div>
           </div>
@@ -133,7 +133,7 @@ export default function Page(){
             <div className="rounded-[32px] bg-white shadow-sm border border-slate-200 p-8 text-center text-slate-500">데이터를 불러오는 중입니다...</div>
           ) : (
             <>
-              <div className={`rounded-[32px] border ${renderStatusColor} p-8 shadow-sm`}> 
+              <div className={`rounded-[32px] border p-8 shadow-sm color-block-section-cream`}> 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6">
                   <div>
                     <div className="inline-flex items-center rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm">{analysisResult.recommendation === 'BUY_NOW' ? '지금 발권 유리' : analysisResult.recommendation === 'WAIT' ? '기다리기 고려' : '중립'}</div>

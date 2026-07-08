@@ -6,9 +6,50 @@ html, body, #__next {
   height: 100%;
 }
 
+
+:root{
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-ink: #000000;
+  --color-canvas: #ffffff;
+  --color-block-lime: #dceeb1;
+  --color-block-lilac: #c5b0f4;
+  --color-block-cream: #f4ecd6;
+  --color-block-pink: #efd4d4;
+  --color-block-mint: #c8e6cd;
+  --color-block-coral: #f3c9b6;
+  --color-block-navy: #1f1d3d;
+  --color-accent-magenta: #ff3d8b;
+  --hairline: #e6e6e6;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
 .rounded-3xl { border-radius: 1rem; }
 .rounded-[32px] { border-radius: 32px; }
+
+/* Typography tokens from design (approximate) */
+.display-xl { font-size: 86px; line-height: 1; font-weight: 340; letter-spacing: -1.72px; }
+.display-lg { font-size: 64px; line-height: 1.1; font-weight: 340; letter-spacing: -0.96px; }
+.headline { font-size: 26px; font-weight: 540; }
+.body-lg { font-size: 20px; font-weight: 330; }
+.body { font-size: 18px; font-weight: 320; }
+
+/* Buttons */
+.btn-primary{ background: var(--color-primary); color: var(--color-on-primary); border-radius: 50px; padding: 10px 20px; display:inline-flex; align-items:center; justify-content:center; font-weight:480 }
+.btn-primary:hover{ opacity:0.95 }
+.btn-secondary{ background: var(--color-canvas); color: var(--color-ink); border-radius:50px; padding:8px 18px; border:1px solid var(--hairline) }
+
+/* Color block sections */
+.color-block-section { background: var(--color-block-lime); border-radius:24px; padding:48px; }
+.color-block-section-lilac { background: var(--color-block-lilac); border-radius:24px; padding:48px; color:var(--color-ink) }
+.color-block-section-cream { background: var(--color-block-cream); border-radius:24px; padding:48px; }
+
+/* small helpers */
+.hairline { border-color: var(--hairline) }
