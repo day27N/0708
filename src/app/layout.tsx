@@ -1,5 +1,7 @@
 import React from 'react'
+import Script from 'next/script'
 import '../styles/globals.css'
+import { GA_MEASUREMENT_ID } from '../lib/analytics'
 
 export const metadata = {
   title: '유타 - 발권 타이밍 어드바이저',
@@ -11,6 +13,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }){
     <html lang="ko">
       <head />
       <body>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         {children}
       </body>
     </html>

@@ -11,6 +11,7 @@ import { loadFxRates } from '../data/fxRates'
 import { getCurrentReferencePeriod, getFullNextReferencePeriod, getIssueMonth, getNextPredictionPeriod } from '../lib/dateUtils'
 import { analyzeKrwFuelData } from '../lib/dailyAnalysis'
 import { combineDubaiWithFx } from '../lib/dubaiFxCombiner'
+import { trackBookingCtaClick, trackTaskCompletion } from '../lib/analytics'
 import { AnalysisResult, DailyDubaiOilPrice, RouteDistance } from '../types/fuel'
 import { DailyDubaiKrwPoint, DailyFxRate } from '../types/fx'
 
@@ -237,6 +238,16 @@ export default function Page() {
     if (result) {
       setError(null)
       setAnalysisResult(result)
+      if (selectedRoute) {
+        trackTaskCompletion({
+          country: selectedRoute.country,
+          destinationCode: selectedRoute.destinationCode,
+          destinationName: selectedRoute.destinationName,
+          ticketingDate: selectedTicketingDate,
+          resultStatus: result.status,
+          inputMethod: 'manual',
+        })
+      }
     } else {
       setError('선택한 조건으로 계산할 데이터가 아직 준비되지 않았습니다.')
     }
@@ -256,6 +267,14 @@ export default function Page() {
     if (result) {
       setError(null)
       setAnalysisResult(result)
+      trackTaskCompletion({
+        country: nextRoute.country,
+        destinationCode: nextRoute.destinationCode,
+        destinationName: nextRoute.destinationName,
+        ticketingDate: nextDate,
+        resultStatus: result.status,
+        inputMethod: 'sample',
+      })
     }
   }
 
@@ -504,6 +523,7 @@ export default function Page() {
                       href={site.href}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => trackBookingCtaClick(site.name)}
                       className="group flex min-h-[52px] items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-100 active:translate-y-0"
                     >
                       <span>{site.name}</span>
