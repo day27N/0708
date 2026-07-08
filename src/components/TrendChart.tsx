@@ -51,7 +51,7 @@ function CustomTooltip({ active, payload }: any) {
 
 function PointShape(props: any) {
   const { cx, cy, fill } = props
-  return <circle cx={cx} cy={cy} r={4.5} fill={fill} fillOpacity={0.92} />
+  return <circle cx={cx} cy={cy} r={3.6} fill={fill} fillOpacity={0.9} />
 }
 
 export default function TrendChart({
@@ -100,7 +100,7 @@ export default function TrendChart({
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 12, right: 8, bottom: 4, left: 8 }}>
-              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="2 10" strokeOpacity={0.5} />
+              <CartesianGrid vertical={false} stroke="#D9E6F2" strokeDasharray="4 9" strokeOpacity={0.72} />
               <XAxis
                 type="number"
                 dataKey="timestamp"

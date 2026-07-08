@@ -19,9 +19,9 @@ type MetricItem = {
 
 function MetricCard({ label, value, sub }: MetricItem) {
   return (
-    <div className="flex min-h-[136px] min-w-0 flex-col justify-between rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="flex min-h-[136px] min-w-0 flex-col justify-center rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="break-keep text-[0.86rem] font-semibold leading-5 text-slate-500">{label}</div>
-      <div className="mt-3 break-keep text-[1.28rem] font-black leading-snug text-slate-950 sm:text-[1.45rem]">
+      <div className="mt-4 break-keep text-[1.28rem] font-black leading-snug text-slate-950 sm:text-[1.45rem]">
         <span className="whitespace-normal">{value}</span>
       </div>
       {sub ? <div className="mt-2 whitespace-nowrap text-[0.84rem] font-medium text-slate-500">{sub}</div> : null}
