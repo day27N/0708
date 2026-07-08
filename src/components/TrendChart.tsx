@@ -1,6 +1,6 @@
 import React from 'react'
 import { format } from 'date-fns'
-import { CartesianGrid, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from 'recharts'
 import { DailyDubaiKrwPoint } from '../types/fx'
 import { ReferencePeriod } from '../types/fuel'
 
@@ -51,7 +51,7 @@ function CustomTooltip({ active, payload }: any) {
 
 function PointShape(props: any) {
   const { cx, cy, fill } = props
-  return <circle cx={cx} cy={cy} r={3.6} fill={fill} fillOpacity={0.9} />
+  return <circle cx={cx} cy={cy} r={3.1} fill={fill} fillOpacity={0.92} />
 }
 
 export default function TrendChart({
@@ -78,8 +78,8 @@ export default function TrendChart({
   const currentData = points.filter(point => point.periodType === 'CURRENT')
   const nextData = points.filter(point => point.periodType === 'NEXT')
   const krwValues = points.map(point => point.krwValue)
-  const minKrw = Math.min(...krwValues)
-  const maxKrw = Math.max(...krwValues)
+  const minKrw = krwValues.length > 0 ? Math.min(...krwValues) : 0
+  const maxKrw = krwValues.length > 0 ? Math.max(...krwValues) : 0
   const yPadding = Math.max((maxKrw - minKrw) * 0.22, maxKrw * 0.018, 1)
   const yDomain: [number, number] = [minKrw - yPadding, maxKrw + yPadding]
 
@@ -99,7 +99,7 @@ export default function TrendChart({
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 12, right: 8, bottom: 4, left: 8 }}>
+            <ComposedChart margin={{ top: 12, right: 8, bottom: 4, left: 8 }}>
               <CartesianGrid vertical={false} stroke="#D9E6F2" strokeDasharray="4 9" strokeOpacity={0.72} />
               <XAxis
                 type="number"
@@ -122,9 +122,21 @@ export default function TrendChart({
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94A3B8', strokeDasharray: '4 4' }} />
               <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 8, fontSize: 12 }} iconSize={9} />
+              <Line
+                data={points}
+                type="linear"
+                dataKey="krwValue"
+                stroke="#8BA6C1"
+                strokeDasharray="4 7"
+                strokeWidth={1.4}
+                dot={false}
+                activeDot={false}
+                legendType="none"
+                isAnimationActive={false}
+              />
               <Scatter name="현재 발권월 기준" data={currentData} fill="#0EA5E9" shape={<PointShape />} />
               <Scatter name="다음 발권월 예측" data={nextData} fill="#10B981" shape={<PointShape />} />
-            </ScatterChart>
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </div>
