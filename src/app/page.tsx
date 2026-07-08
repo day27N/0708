@@ -55,21 +55,21 @@ function formatRouteIndex(value: number | null) {
 
 function BrandMark() {
   return (
-    <div className="flex items-center gap-3.5">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border border-sky-100 bg-white shadow-sm">
-        <svg viewBox="0 0 64 64" aria-hidden="true" className="h-12 w-12">
-          <path d="M15 47c8.5-3.8 17-11.2 31.5-28.5" fill="none" stroke="#0F2742" strokeWidth="4.2" strokeLinecap="round" />
-          <path d="M9 49c7.2-1.4 13.2-4.6 19-10.2" fill="none" stroke="#1976F3" strokeWidth="4.2" strokeLinecap="round" />
-          <path d="M40.5 20.5l12.5-4.6-4.6 12 7.8 6.4-10.2 1-6 9-1.1-10.8-10.2-3.5 9.6-3.7z" fill="#0F2742" />
-          <path d="M18.4 45.6a23.8 23.8 0 1 1 35-21.3" fill="none" stroke="#1777F2" strokeWidth="6.4" strokeLinecap="round" />
-          <path d="M53.8 35.4a23.8 23.8 0 0 1-32.2 14.8" fill="none" stroke="#174FE5" strokeWidth="6.4" strokeLinecap="round" />
-          <path d="M32 9.5v5.5M13.5 32h5M32 49v5.5" stroke="#174FE5" strokeWidth="3.2" strokeLinecap="round" />
-          <circle cx="32" cy="32" r="5" fill="#0F2742" />
+    <div className="flex items-center gap-4">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-sky-100 bg-white shadow-sm">
+        <svg viewBox="0 0 64 64" aria-hidden="true" className="h-11 w-11 overflow-visible">
+          <path d="M15.5 42.5A23 23 0 0 1 32 9.5c8.3 0 15.6 4.4 19.7 11" fill="none" stroke="#1777F2" strokeWidth="6" strokeLinecap="round" />
+          <path d="M53.5 35.5A23 23 0 0 1 21 51" fill="none" stroke="#174FE5" strokeWidth="6" strokeLinecap="round" />
+          <path d="M12.5 47c7.1-1.8 13.7-5.5 19.8-11.1" fill="none" stroke="#1777F2" strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M27.5 35.5 46 17" fill="none" stroke="#0F2742" strokeWidth="4" strokeLinecap="round" />
+          <path d="m43.5 18.8 9.8-3.5-3.7 9.3 6.1 5.2-8.3.7-4.8 7.3-.9-8.8-8-2.8 7.4-2.8z" fill="#0F2742" />
+          <path d="M32 13v4.5M14 32h4.5M32 46.5V51" stroke="#174FE5" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="32" cy="32" r="4.4" fill="#0F2742" />
         </svg>
       </div>
-      <div>
-        <div className="text-[1.8rem] font-black leading-none text-[#0F2742] sm:text-[1.95rem]">유타</div>
-        <p className="mt-1.5 text-[0.9rem] font-medium leading-none text-slate-600">두바이유 추세 기반 발권 타이밍</p>
+      <div className="pt-0.5">
+        <div className="text-[1.75rem] font-black leading-[1.05] text-[#0F2742] sm:text-[1.9rem]">유타</div>
+        <p className="mt-1 text-[0.92rem] font-medium leading-[1.45] text-slate-600">두바이유 추세 기반 발권 타이밍</p>
       </div>
     </div>
   )
