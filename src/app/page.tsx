@@ -446,7 +446,7 @@ export default function Page() {
                 type="date"
                 value={selectedTicketingDate}
                 onChange={event => handleTicketingDateChange(event.target.value)}
-                className="mt-2 block h-12 w-full min-w-0 max-w-full appearance-none rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="date-input mt-2 block h-12 w-full min-w-0 max-w-full appearance-none rounded-2xl border-2 border-sky-100 bg-white px-4 text-center text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
               />
             </label>
 
