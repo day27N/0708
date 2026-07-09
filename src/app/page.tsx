@@ -62,6 +62,8 @@ const sampleTrips = [
   { label: '파리 여행', country: '프랑스', destinationCode: 'CDG' },
 ]
 
+const contactEmail = 'ekdusee0927@gmail.com'
+
 function formatKrw(value: number | null) {
   return value === null ? '-' : Math.round(value).toLocaleString()
 }
@@ -139,6 +141,7 @@ function BalancedResultTitle({ title }: { title: string }) {
 
 export default function Page() {
   const todayStr = new Date().toISOString().slice(0, 10)
+  const copyrightYear = new Date().getFullYear()
   const [prices, setPrices] = useState<DailyDubaiOilPrice[]>([])
   const [fxRates, setFxRates] = useState<DailyFxRate[]>([])
   const [combinedPrices, setCombinedPrices] = useState<DailyDubaiKrwPoint[]>([])
@@ -605,6 +608,20 @@ export default function Page() {
         )}
 
         <DataSourceNotice />
+        <footer className="mt-8 border-t border-slate-200/80 py-6 text-sm text-slate-500">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              문의:{' '}
+              <a
+                href={`mailto:${contactEmail}`}
+                className="font-semibold text-slate-700 underline-offset-4 hover:text-sky-700 hover:underline"
+              >
+                {contactEmail}
+              </a>
+            </p>
+            <p className="font-medium text-slate-500">© {copyrightYear} 유타. All rights reserved.</p>
+          </div>
+        </footer>
       </div>
     </main>
   )
