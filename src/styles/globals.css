@@ -116,7 +116,7 @@ body {
   line-height: 1;
   text-align: center;
   filter: drop-shadow(0 16px 18px rgba(2, 132, 199, 0.22));
-  transform: translate(-80px, 48px) rotate(10deg);
+  transform: translate(-80px, 34px) rotate(10deg);
   animation: flight-plane-swoop 1700ms cubic-bezier(0.2, 0.78, 0.2, 1) 180ms forwards;
 }
 
@@ -145,7 +145,7 @@ body {
 @keyframes flight-plane-swoop {
   0% {
     opacity: 0;
-    transform: translate(-80px, 48px) rotate(10deg) scale(0.92);
+    transform: translate(-80px, 34px) rotate(10deg) scale(0.92);
   }
 
   16% {
@@ -154,12 +154,12 @@ body {
 
   74% {
     opacity: 1;
-    transform: translate(calc(min(620px, 86vw) - 82px), -34px) rotate(10deg) scale(1);
+    transform: translate(calc(min(620px, 86vw) - 82px), -48px) rotate(10deg) scale(1);
   }
 
   100% {
     opacity: 0;
-    transform: translate(calc(min(620px, 86vw) + 70px), -58px) rotate(10deg) scale(1.04);
+    transform: translate(calc(min(620px, 86vw) + 70px), -72px) rotate(10deg) scale(1.04);
   }
 }
 
