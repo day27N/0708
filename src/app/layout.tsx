@@ -11,7 +11,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }){
   return (
     <html lang="ko">
-      <head />
+      <head>
+        <meta name="google-site-verification" content="fZx-dAfAG5OAZusdLpTYWrl5BvOERZpPoKmjzxEgG2U" />
+      </head>
       <body>
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
