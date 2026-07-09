@@ -114,6 +114,24 @@ function getImpactJudgment(result: AnalysisResult) {
   return `방향성은 보이지만, ${thresholdText} 기준에는 못 미쳐요.`
 }
 
+function CommaBreakText({ text }: { text: string }) {
+  const lines = text.split(',').map(line => line.trim()).filter(Boolean)
+
+  if (lines.length <= 1) {
+    return <>{text}</>
+  }
+
+  return (
+    <>
+      {lines.map((line, index) => (
+        <span key={`${line}-${index}`} className={index === 0 ? 'block' : 'mt-1 block'}>
+          {index < lines.length - 1 ? `${line},` : line}
+        </span>
+      ))}
+    </>
+  )
+}
+
 function BrandMark() {
   return (
     <div className="flex items-center gap-4">
@@ -528,7 +546,7 @@ export default function Page() {
                 <div className="rounded-[22px] bg-white/80 p-5 text-left shadow-sm lg:mt-10 lg:min-w-[210px]">
                   <div className="text-sm font-semibold text-slate-500">판단</div>
                   <div className="mt-2 break-keep text-base font-bold leading-7 text-slate-950">
-                    {getImpactJudgment(result)}
+                    <CommaBreakText text={getImpactJudgment(result)} />
                   </div>
                   <div className="mt-2 text-sm text-slate-500">
                     계산에 사용한 최신 데이터일
