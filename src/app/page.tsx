@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import DataSourceNotice from '../components/DataSourceNotice'
 import KeyMetrics from '../components/KeyMetrics'
 import PeriodComparisonTable from '../components/PeriodComparisonTable'
@@ -150,8 +150,10 @@ export default function Page() {
   const [selectedRoute, setSelectedRoute] = useState<RouteDistance | null>(null)
   const [selectedDestination, setSelectedDestination] = useState('')
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  const [isResultHighlighted, setIsResultHighlighted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const resultSectionRef = useRef<HTMLElement | null>(null)
 
   const currentRoutes = selectedCountry ? routes.filter(route => route.country === selectedCountry) : []
   const canAnalyze = selectedRoute !== null && selectedTicketingDate !== ''
@@ -205,11 +207,28 @@ export default function Page() {
     init()
   }, [])
 
+  useEffect(() => {
+    if (!analysisResult) return
+
+    const scrollFrame = window.requestAnimationFrame(() => {
+      resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    const highlightTimer = window.setTimeout(() => {
+      setIsResultHighlighted(false)
+    }, 1800)
+
+    return () => {
+      window.cancelAnimationFrame(scrollFrame)
+      window.clearTimeout(highlightTimer)
+    }
+  }, [analysisResult])
+
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country)
     setSelectedRoute(null)
     setSelectedDestination('')
     setAnalysisResult(null)
+    setIsResultHighlighted(false)
     setError(null)
   }
 
@@ -222,12 +241,14 @@ export default function Page() {
     setSelectedCountry(nextRoute.country)
     setError(null)
     setAnalysisResult(null)
+    setIsResultHighlighted(false)
   }
 
   const handleTicketingDateChange = (date: string) => {
     setSelectedTicketingDate(date)
     setError(null)
     setAnalysisResult(null)
+    setIsResultHighlighted(false)
   }
 
   const handleAnalyzeClick = () => {
@@ -240,6 +261,7 @@ export default function Page() {
     const result = runAnalysis(selectedTicketingDate, selectedRoute)
     if (result) {
       setError(null)
+      setIsResultHighlighted(true)
       setAnalysisResult(result)
       if (selectedRoute) {
         trackTaskCompletion({
@@ -269,6 +291,7 @@ export default function Page() {
     const result = runAnalysis(nextDate, nextRoute)
     if (result) {
       setError(null)
+      setIsResultHighlighted(true)
       setAnalysisResult(result)
       trackTaskCompletion({
         country: nextRoute.country,
@@ -432,7 +455,10 @@ export default function Page() {
           </section>
         ) : (
           <>
-            <section className={`mt-6 rounded-[28px] border p-6 shadow-sm sm:p-8 ${statusStyle[result.status]}`}>
+            <section
+              ref={resultSectionRef}
+              className={`mt-6 scroll-mt-6 rounded-[28px] border p-6 shadow-sm transition-all duration-500 sm:p-8 ${statusStyle[result.status]} ${isResultHighlighted ? 'ring-4 ring-sky-200 ring-offset-2 ring-offset-[#F7FAFC]' : ''}`}
+            >
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <span className="inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-bold shadow-sm">
