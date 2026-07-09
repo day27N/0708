@@ -519,7 +519,7 @@ export default function Page() {
                     <BalancedResultTitle title={result.title} />
                   </h2>
                   <p className="mt-4 max-w-[760px] break-keep text-[0.98rem] leading-8 text-slate-700">
-                    {result.description}
+                    <CommaBreakText text={result.description} />
                   </p>
                   <div className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
                     <div className="rounded-2xl bg-white/70 p-4">
@@ -539,7 +539,7 @@ export default function Page() {
                     </div>
                   </div>
                   <p className="mt-4 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
-                    {formatThreshold(result.impactAmount.significantThresholdKrw)} 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 편도 기준 참고 지표입니다.
+                    <CommaBreakText text={`${formatThreshold(result.impactAmount.significantThresholdKrw)} 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 편도 기준 참고 지표입니다.`} />
                   </p>
                 </div>
 
