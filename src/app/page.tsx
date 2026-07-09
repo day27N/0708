@@ -76,6 +76,17 @@ function formatPercent(value: number | null) {
   return value === null ? '-' : `${value.toFixed(2)}%`
 }
 
+function formatDisplayDate(value: string) {
+  if (!value) return ''
+  const date = new Date(`${value}T00:00:00`)
+  if (isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
 function formatThreshold(value: number) {
   return value >= 10000 ? `${Number((value / 10000).toFixed(1))}만 원` : `${value.toLocaleString()}원`
 }
@@ -442,12 +453,17 @@ export default function Page() {
 
             <label className="block min-w-0">
               <span className="text-sm font-bold text-slate-800">이 날짜에 발권한다면?</span>
-              <input
-                type="date"
-                value={selectedTicketingDate}
-                onChange={event => handleTicketingDateChange(event.target.value)}
-                className="date-input mt-2 block h-12 w-full min-w-0 max-w-full appearance-none rounded-2xl border-2 border-sky-100 bg-white px-4 text-center text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
-              />
+              <div className="relative mt-2 h-12 w-full min-w-0 max-w-full">
+                <div className="flex h-12 w-full items-center justify-center rounded-2xl border-2 border-sky-100 bg-white px-4 text-center text-[0.95rem] font-semibold text-slate-950 transition">
+                  {formatDisplayDate(selectedTicketingDate)}
+                </div>
+                <input
+                  type="date"
+                  value={selectedTicketingDate}
+                  onChange={event => handleTicketingDateChange(event.target.value)}
+                  className="absolute inset-0 h-12 w-full cursor-pointer opacity-0"
+                />
+              </div>
             </label>
 
             <button

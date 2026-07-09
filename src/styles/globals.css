@@ -54,22 +54,6 @@ body {
 /* small helpers */
 .hairline { border-color: var(--hairline) }
 
-.date-input {
-  line-height: 1;
-}
-
-.date-input::-webkit-date-and-time-value {
-  min-height: 100%;
-  text-align: center;
-}
-
-.date-input::-webkit-datetime-edit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-}
-
 .flight-intro {
   position: fixed;
   inset: 0;
