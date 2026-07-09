@@ -76,6 +76,10 @@ function formatPercent(value: number | null) {
   return value === null ? '-' : `${value.toFixed(2)}%`
 }
 
+function formatThreshold(value: number) {
+  return value >= 10000 ? `${Number((value / 10000).toFixed(1))}만 원` : `${value.toLocaleString()}원`
+}
+
 function formatSignedRouteImpact(result: AnalysisResult) {
   const impact = result.impactAmount.estimatedRouteImpactKrw
   const delta = result.impactAmount.deltaKrwPerBarrel
@@ -102,11 +106,12 @@ function getRouteImpactTrendText(deltaKrwPerBarrel: number | null) {
 function getImpactJudgment(result: AnalysisResult) {
   const impact = result.impactAmount.estimatedRouteImpactKrw
   const threshold = result.impactAmount.significantThresholdKrw
+  const thresholdText = formatThreshold(threshold)
   if (impact === null) return '계산에 필요한 데이터가 부족합니다.'
   if (impact >= threshold) {
-    return `5만 원 이상 차이로 판단되어, 유류비 관점에서는 ${result.impactAmount.deltaKrwPerBarrel !== null && result.impactAmount.deltaKrwPerBarrel < 0 ? '기다리는 전략도 가능해요.' : '지금 발권이 유리할 수 있어요.'}`
+    return `${thresholdText} 이상 차이로 판단되어, 유류비 관점에서는 ${result.impactAmount.deltaKrwPerBarrel !== null && result.impactAmount.deltaKrwPerBarrel < 0 ? '기다리는 전략도 가능해요.' : '지금 발권이 유리할 수 있어요.'}`
   }
-  return '방향성은 보이지만, 5만 원 기준에는 못 미쳐요.'
+  return `방향성은 보이지만, ${thresholdText} 기준에는 못 미쳐요.`
 }
 
 function BrandMark() {
@@ -516,7 +521,7 @@ export default function Page() {
                     </div>
                   </div>
                   <p className="mt-4 max-w-[760px] break-keep text-sm leading-6 text-slate-600">
-                    5만 원 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 편도 기준 참고 지표입니다.
+                    {formatThreshold(result.impactAmount.significantThresholdKrw)} 이상이면 유의미한 차이로 판단합니다. 거리반영 참고 영향액은 실제 유류할증료 금액이 아니라, 원화 환산 Dubai 가격 변화와 노선 운항거리를 결합한 편도 기준 참고 지표입니다.
                   </p>
                 </div>
 
@@ -636,8 +641,8 @@ export default function Page() {
                 <p>환율 데이터가 없는 날짜는 직전 유효 USD/KRW 환율을 사용했습니다.</p>
                 <p>선택한 목적지의 운항거리와 거리구간은 결과 해석을 돕는 참고 정보로 함께 표시합니다.</p>
                 <div>
-                  <h3 className="font-bold text-slate-800">왜 5만 원 기준을 쓰나요?</h3>
-                  <p className="mt-1">유류비 지표의 변화율이 커도 단거리 노선에서는 실제 체감 차이가 작을 수 있습니다. 그래서 유타는 원화 환산 Dubai 변화폭에 선택 노선의 운항거리를 반영한 편도 기준 참고 영향액을 계산하고, 5만 원 이상일 때 유의미한 차이로 표시합니다.</p>
+                  <h3 className="font-bold text-slate-800">왜 {formatThreshold(result.impactAmount.significantThresholdKrw)} 기준을 쓰나요?</h3>
+                  <p className="mt-1">유류비 지표의 변화율이 커도 단거리 노선에서는 실제 체감 차이가 작을 수 있습니다. 그래서 유타는 원화 환산 Dubai 변화폭에 선택 노선의 운항거리를 반영한 편도 기준 참고 영향액을 계산하고, {formatThreshold(result.impactAmount.significantThresholdKrw)} 이상일 때 유의미한 차이로 표시합니다.</p>
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800">실제 유류할증료 금액인가요?</h3>

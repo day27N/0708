@@ -1,2 +1,2 @@
-export const SIGNIFICANT_IMPACT_KRW = 50000
+export const SIGNIFICANT_IMPACT_KRW = 25000
 export const WEAK_IMPACT_KRW = 20000

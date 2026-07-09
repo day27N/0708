@@ -3,7 +3,7 @@ const path = require('path')
 
 const ACTUAL_DIRECTION_THRESHOLD_RATE = 3
 const YUTA_DIRECTION_THRESHOLD_RATE = 3
-const SIGNIFICANT_IMPACT_KRW = 50000
+const SIGNIFICANT_IMPACT_KRW = 25000
 const WEAK_IMPACT_KRW = 20000
 
 const ROUTE_PROFILES = [
@@ -348,6 +348,8 @@ function buildBacktest() {
       note: 'Internal mini backtest only. Official monthly surcharge rows use midpoint of min/max surcharge as each airline monthly representative value.',
       actualDirectionThresholdRate: ACTUAL_DIRECTION_THRESHOLD_RATE,
       yutaDirectionThresholdRate: YUTA_DIRECTION_THRESHOLD_RATE,
+      significantImpactKrw: SIGNIFICANT_IMPACT_KRW,
+      weakImpactKrw: WEAK_IMPACT_KRW,
       generatedAt: new Date().toISOString(),
     },
     details,
