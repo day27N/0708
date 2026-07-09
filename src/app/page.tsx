@@ -144,14 +144,7 @@ function FlightIntro() {
     <div className="flight-intro" aria-label="서비스를 준비하고 있습니다" role="status">
       <div className="flight-intro__sky">
         <div className="flight-intro__route" />
-        <div className="flight-intro__plane">
-          <svg viewBox="0 0 64 64" aria-hidden="true">
-            <path
-              d="M58.8 28.6 39.4 20l-5.9-14.1c-.5-1.2-1.8-1.9-3.1-1.5l-3.2.9 4.3 12.2-14.8-3.8-4.5-7.1-3.5.9 2.1 8.4-8.1 2.4-.1 3.9 8.8 1.1 5.3 7-8.5 8.6 3.1 2.3 11.6-6.2 14.9 3.8-7.7 10.4 3.1 1.4c1.2.5 2.6.1 3.3-1l9.3-12.7 20.8-.8c2.3-.1 4.2-1.9 4.5-4.2.1-1.4-.7-2.7-2.4-3.3Z"
-              fill="currentColor"
-            />
-          </svg>
-        </div>
+        <div className="flight-intro__plane" aria-hidden="true">✈️</div>
         <div className="flight-intro__copy">
           <p>YUTA</p>
           <span>발권 타이밍을 준비하는 중</span>
