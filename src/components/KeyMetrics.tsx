@@ -25,7 +25,7 @@ function MetricCard({ label, value, sub }: MetricItem) {
       <div className="mt-4 break-keep text-[1.28rem] font-black leading-snug text-slate-950 sm:text-[1.45rem]">
         <span className="whitespace-normal">{value}</span>
       </div>
-      {sub ? <div className="mt-2 whitespace-nowrap text-[0.84rem] font-medium text-slate-500">{sub}</div> : null}
+      {sub ? <div className="mt-2 break-keep text-[0.84rem] font-medium leading-5 text-slate-500">{sub}</div> : null}
     </div>
   )
 }

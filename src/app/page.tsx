@@ -388,8 +388,8 @@ export default function Page() {
   return (
     <>
     {showIntro ? <FlightIntro /> : null}
-    <main className="min-h-screen bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
-      <div className="mx-auto max-w-[1120px]">
+    <main className="min-h-screen overflow-x-hidden bg-[#F7FAFC] px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-[1120px] min-w-0">
         <header className="flex items-center justify-between border-b border-slate-200/80 pb-6 pt-1">
           <BrandMark />
         </header>
@@ -533,7 +533,7 @@ export default function Page() {
             <h2 className="mt-5 break-keep text-[1.4rem] font-extrabold leading-[1.35] text-slate-950 sm:text-[1.8rem]">
               목적지와 발권일을 고르면 결과가 표시돼요
             </h2>
-            <p className="mt-3 break-keep whitespace-nowrap text-sm leading-7 text-slate-600">
+            <p className="mt-3 max-w-full break-keep text-sm leading-7 text-slate-600 [overflow-wrap:anywhere]">
               어디로 가는지와 발권일을 선택하면 유류비 관점의 발권 타이밍, 거리반영 참고 영향액, 추세 차트를 바로 확인할 수 있습니다.
             </p>
           </section>
