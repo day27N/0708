@@ -5,28 +5,28 @@
   "yutaDirectionThresholdRate": 3,
   "significantImpactKrw": 25000,
   "weakImpactKrw": 20000,
-  "generatedAt": "2026-07-09T04:24:01.134Z",
+  "generatedAt": "2026-07-09T04:36:18.710Z",
   "transitionChecks": 7,
   "yutaDirectionMatched": 7,
   "yutaDirectionAccuracy": 1,
   "appMatchesByRoute": [
     {
       "routeProfile": "short_800mi",
-      "matched": 4,
+      "matched": 7,
       "total": 7,
-      "accuracy": 0.5714285714285714
+      "accuracy": 1
     },
     {
       "routeProfile": "medium_1900mi",
-      "matched": 4,
+      "matched": 7,
       "total": 7,
-      "accuracy": 0.5714285714285714
+      "accuracy": 1
     },
     {
       "routeProfile": "long_3600mi",
-      "matched": 6,
+      "matched": 7,
       "total": 7,
-      "accuracy": 0.8571428571428571
+      "accuracy": 1
     }
   ],
   "transitions": [

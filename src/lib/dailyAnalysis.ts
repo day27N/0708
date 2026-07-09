@@ -40,8 +40,8 @@ export function analyzeKrwFuelData(
       : estimatedRouteImpactKrw >= WEAK_IMPACT_KRW
         ? '보통'
         : '낮음'
-  const recommendation = getRecommendation(deltaKrwPerBarrel, estimatedRouteImpactKrw)
-  const recommendationTextValue = recommendationText(recommendation)
+  const recommendation = getRecommendation(deltaKrwPerBarrel, estimatedRouteImpactKrw, changeRate)
+  const recommendationTextValue = recommendationText(recommendation, deltaKrwPerBarrel)
   const routeImpact = buildDistanceImpact(selectedRoute, changeRate)
   const currentRouteAdjusted = calculateRouteAdjustedIndex(currentAvgKrw, selectedRoute?.distanceMile ?? 0)
   const nextRouteAdjusted = calculateRouteAdjustedIndex(nextAvgKrw, selectedRoute?.distanceMile ?? 0)

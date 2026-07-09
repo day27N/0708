@@ -16,10 +16,10 @@ import { AnalysisResult, DailyDubaiOilPrice, RouteDistance } from '../types/fuel
 import { DailyDubaiKrwPoint, DailyFxRate } from '../types/fx'
 
 const statusLabel = {
-  BUY_NOW: '지금 발권 유리',
-  WAIT: '기다리기 고려',
-  WEAK_SIGNAL: '방향성 있음',
-  NEUTRAL: '큰 차이 없음',
+  BUY_NOW: '상승 압력 큼',
+  WAIT: '하락 압력 큼',
+  WEAK_SIGNAL: '소폭 방향성',
+  NEUTRAL: '방향성 약함',
   INSUFFICIENT_DATA: '데이터 부족',
 } as const
 

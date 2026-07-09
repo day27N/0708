@@ -111,12 +111,12 @@ function directionFromRate(rate, threshold) {
   return 'FLAT'
 }
 
-function yutaSignalFromImpact(deltaKrwPerBarrel, estimatedRouteImpactKrw) {
-  if (deltaKrwPerBarrel === null || estimatedRouteImpactKrw === null) return 'INSUFFICIENT_DATA'
+function yutaSignalFromImpact(deltaKrwPerBarrel, estimatedRouteImpactKrw, changeRate) {
+  if (deltaKrwPerBarrel === null || estimatedRouteImpactKrw === null || changeRate === null) return 'INSUFFICIENT_DATA'
+  if (Math.abs(changeRate) < YUTA_DIRECTION_THRESHOLD_RATE) return 'NEUTRAL'
   if (estimatedRouteImpactKrw >= SIGNIFICANT_IMPACT_KRW && deltaKrwPerBarrel > 0) return 'BUY_NOW'
   if (estimatedRouteImpactKrw >= SIGNIFICANT_IMPACT_KRW && deltaKrwPerBarrel < 0) return 'WAIT'
-  if (estimatedRouteImpactKrw >= WEAK_IMPACT_KRW) return 'WEAK_SIGNAL'
-  return 'NEUTRAL'
+  return 'WEAK_SIGNAL'
 }
 
 function signalDirection(signal, deltaKrwPerBarrel) {
@@ -313,7 +313,7 @@ function buildBacktest() {
       const estimatedRouteImpactKrw = deltaKrwPerBarrel === null
         ? null
         : Math.abs(deltaKrwPerBarrel) * (route.distanceMile / 1000)
-      const yutaSignal = yutaSignalFromImpact(deltaKrwPerBarrel, estimatedRouteImpactKrw)
+      const yutaSignal = yutaSignalFromImpact(deltaKrwPerBarrel, estimatedRouteImpactKrw, yutaRate)
       const appDirection = signalDirection(yutaSignal, deltaKrwPerBarrel)
 
       details.push({
