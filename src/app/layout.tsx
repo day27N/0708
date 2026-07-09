@@ -13,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }){
     <html lang="ko">
       <head>
         <meta name="google-site-verification" content="fZx-dAfAG5OAZusdLpTYWrl5BvOERZpPoKmjzxEgG2U" />
+        <link rel="canonical" href="https://07081.vercel.app/" />
       </head>
       <body>
         <Script
