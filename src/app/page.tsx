@@ -533,7 +533,7 @@ export default function Page() {
             <h2 className="mt-5 break-keep text-[1.4rem] font-extrabold leading-[1.35] text-slate-950 sm:text-[1.8rem]">
               목적지와 발권일을 고르면 결과가 표시돼요
             </h2>
-            <p className="mt-3 max-w-[680px] break-keep text-sm leading-7 text-slate-600">
+            <p className="mt-3 break-keep whitespace-nowrap text-sm leading-7 text-slate-600">
               어디로 가는지와 발권일을 선택하면 유류비 관점의 발권 타이밍, 거리반영 참고 영향액, 추세 차트를 바로 확인할 수 있습니다.
             </p>
           </section>
