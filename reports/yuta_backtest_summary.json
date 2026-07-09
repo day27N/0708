@@ -1,43 +1,91 @@
 {
-  "source": "data\\airline_surcharges_2026_04_07.csv",
-  "note": "Internal mini backtest only. Four surcharge months produce three month-to-month direction checks.",
+  "source": "data\\fuel_surcharges_verified_official_only.csv",
+  "note": "Internal mini backtest only. Official monthly surcharge rows use midpoint of min/max surcharge as each airline monthly representative value.",
   "actualDirectionThresholdRate": 3,
   "yutaDirectionThresholdRate": 3,
-  "generatedAt": "2026-07-09T03:45:58.847Z",
-  "transitionChecks": 3,
-  "yutaDirectionMatched": 3,
+  "generatedAt": "2026-07-09T04:07:40.128Z",
+  "transitionChecks": 7,
+  "yutaDirectionMatched": 7,
   "yutaDirectionAccuracy": 1,
   "appMatchesByRoute": [
     {
       "routeProfile": "short_800mi",
-      "matched": 2,
-      "total": 3,
-      "accuracy": 0.6666666666666666
+      "matched": 4,
+      "total": 7,
+      "accuracy": 0.5714285714285714
     },
     {
       "routeProfile": "medium_1900mi",
-      "matched": 2,
-      "total": 3,
-      "accuracy": 0.6666666666666666
+      "matched": 4,
+      "total": 7,
+      "accuracy": 0.5714285714285714
     },
     {
       "routeProfile": "long_3600mi",
-      "matched": 3,
-      "total": 3,
-      "accuracy": 1
+      "matched": 6,
+      "total": 7,
+      "accuracy": 0.8571428571428571
     }
   ],
   "transitions": [
+    {
+      "fromMonth": "2025-12",
+      "toMonth": "2026-01",
+      "yutaDirection": "FLAT",
+      "actualDirection": "FLAT",
+      "matched": true,
+      "actualChangeRate": 0,
+      "yutaChangeRate": -0.81,
+      "actualRowDirectionCounts": {
+        "FLAT": 1
+      }
+    },
+    {
+      "fromMonth": "2026-01",
+      "toMonth": "2026-02",
+      "yutaDirection": "DOWN",
+      "actualDirection": "DOWN",
+      "matched": true,
+      "actualChangeRate": -31.73,
+      "yutaChangeRate": -4.77,
+      "actualRowDirectionCounts": {
+        "DOWN": 2
+      }
+    },
+    {
+      "fromMonth": "2026-02",
+      "toMonth": "2026-03",
+      "yutaDirection": "UP",
+      "actualDirection": "UP",
+      "matched": true,
+      "actualChangeRate": 25.12,
+      "yutaChangeRate": 6.94,
+      "actualRowDirectionCounts": {
+        "UP": 2
+      }
+    },
+    {
+      "fromMonth": "2026-03",
+      "toMonth": "2026-04",
+      "yutaDirection": "UP",
+      "actualDirection": "UP",
+      "matched": true,
+      "actualChangeRate": 211.52,
+      "yutaChangeRate": 41.25,
+      "actualRowDirectionCounts": {
+        "UP": 2
+      }
+    },
     {
       "fromMonth": "2026-04",
       "toMonth": "2026-05",
       "yutaDirection": "UP",
       "actualDirection": "UP",
       "matched": true,
-      "actualChangeRate": 87.14,
+      "actualChangeRate": 87.36,
       "yutaChangeRate": 43.5,
       "actualRowDirectionCounts": {
-        "UP": 57
+        "UP": 2
       }
     },
     {
@@ -46,10 +94,10 @@
       "yutaDirection": "DOWN",
       "actualDirection": "DOWN",
       "matched": true,
-      "actualChangeRate": -18.81,
+      "actualChangeRate": -19.72,
       "yutaChangeRate": -20.58,
       "actualRowDirectionCounts": {
-        "DOWN": 57
+        "DOWN": 2
       }
     },
     {
@@ -58,10 +106,10 @@
       "yutaDirection": "DOWN",
       "actualDirection": "DOWN",
       "matched": true,
-      "actualChangeRate": -28.47,
+      "actualChangeRate": -25.85,
       "yutaChangeRate": -4.53,
       "actualRowDirectionCounts": {
-        "DOWN": 57
+        "DOWN": 2
       }
     }
   ]

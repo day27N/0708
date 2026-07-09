@@ -1,0 +1,14 @@
+airline,airline_code,basis,from_month,to_month,from_surcharge_krw,to_surcharge_krw,from_min_surcharge_krw,from_max_surcharge_krw,to_min_surcharge_krw,to_max_surcharge_krw,actual_change_rate,actual_direction
+Korean Air,Korean Air,midpoint_of_min_max,2025-12,2026-01,65250,65250,15000,115500,15000,115500,0,FLAT
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-01,2026-02,55150,38700,16200,94100,11700,65700,-29.8277,DOWN
+Korean Air,Korean Air,midpoint_of_min_max,2026-01,2026-02,65250,43500,15000,115500,10500,76500,-33.3333,DOWN
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-02,2026-03,38700,46600,11700,65700,14600,78600,20.4134,UP
+Korean Air,Korean Air,midpoint_of_min_max,2026-02,2026-03,43500,56250,10500,76500,13500,99000,29.3103,UP
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-03,2026-04,46600,147900,14600,78600,43900,251900,217.382,UP
+Korean Air,Korean Air,midpoint_of_min_max,2026-03,2026-04,56250,172500,13500,99000,42000,303000,206.6667,UP
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-04,2026-05,147900,280800,43900,251900,85400,476200,89.858,UP
+Korean Air,Korean Air,midpoint_of_min_max,2026-04,2026-05,172500,319500,42000,303000,75000,564000,85.2174,UP
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-05,2026-06,280800,225400,85400,476200,68000,382800,-19.7293,DOWN
+Korean Air,Korean Air,midpoint_of_min_max,2026-05,2026-06,319500,256500,75000,564000,61500,451500,-19.7183,DOWN
+Asiana Airlines,Asiana Airlines,midpoint_of_min_max,2026-06,2026-07,225400,162150,68000,382800,48500,275800,-28.0612,DOWN
+Korean Air,Korean Air,midpoint_of_min_max,2026-06,2026-07,256500,195200,61500,451500,46400,344000,-23.8986,DOWN

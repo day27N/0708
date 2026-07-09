@@ -1,13 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 
-const MONTHS = ['2026-04', '2026-05', '2026-06', '2026-07']
-const TRANSITIONS = [
-  { from: '2026-04', to: '2026-05', ticketingDate: '2026-04-15' },
-  { from: '2026-05', to: '2026-06', ticketingDate: '2026-05-15' },
-  { from: '2026-06', to: '2026-07', ticketingDate: '2026-06-15' },
-]
-
 const ACTUAL_DIRECTION_THRESHOLD_RATE = 3
 const YUTA_DIRECTION_THRESHOLD_RATE = 3
 const SIGNIFICANT_IMPACT_KRW = 50000
@@ -20,11 +13,12 @@ const ROUTE_PROFILES = [
 ]
 
 const root = path.resolve(__dirname, '..')
-const actualCsvPath = path.join(root, 'data', 'airline_surcharges_2026_04_07.csv')
+const actualCsvPath = path.join(root, 'data', 'fuel_surcharges_verified_official_only.csv')
 const dubaiCsvPath = path.join(root, 'public', 'data', 'dubai_oil.csv')
 const fxCsvPath = path.join(root, 'public', 'data', 'DEXKOUS.csv')
 const outDir = path.join(root, 'reports')
 const detailOutPath = path.join(outDir, 'yuta_backtest_detail.csv')
+const actualDetailOutPath = path.join(outDir, 'yuta_backtest_actual_airline_detail.csv')
 const summaryOutPath = path.join(outDir, 'yuta_backtest_summary.json')
 
 function parseCsv(text) {
@@ -93,6 +87,21 @@ function average(values) {
 function changeRate(from, to) {
   if (from === null || to === null || from === 0) return null
   return ((to - from) / from) * 100
+}
+
+function monthToNumber(month) {
+  const [year, monthValue] = month.split('-').map(Number)
+  return year * 12 + monthValue
+}
+
+function addOneMonth(month) {
+  const [year, monthValue] = month.split('-').map(Number)
+  const next = new Date(year, monthValue, 1)
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`
+}
+
+function ticketingDateForMonth(month) {
+  return `${month}-15`
 }
 
 function directionFromRate(rate, threshold) {
@@ -174,29 +183,92 @@ function averageKrwForPeriod(points, period, availableUntil) {
   }
 }
 
+function normalizeActualRows(actualRows) {
+  if (actualRows[0] && 'ticketing_month' in actualRows[0]) {
+    return actualRows.map(row => {
+      const minSurcharge = parseMoney(row.min_surcharge_krw)
+      const maxSurcharge = parseMoney(row.max_surcharge_krw)
+      const representativeSurchargeKrw = minSurcharge !== null && maxSurcharge !== null
+        ? (minSurcharge + maxSurcharge) / 2
+        : null
+
+      return {
+        airline: row.airline_en || row.airline_ko,
+        airline_code: row.airline_en || row.airline_ko,
+        ticketing_month: row.ticketing_month,
+        representative_surcharge_krw: representativeSurchargeKrw,
+        min_surcharge_krw: minSurcharge,
+        max_surcharge_krw: maxSurcharge,
+        verification_status: row.verification_status,
+        source_url: row.source_url,
+      }
+    })
+  }
+
+  return actualRows.flatMap(row => Object.keys(row)
+    .filter(key => /^\d{4}-\d{2}$/.test(key))
+    .map(month => ({
+      airline: row.airline,
+      airline_code: row.airline_code,
+      ticketing_month: month,
+      representative_surcharge_krw: parseMoney(row[month]),
+      min_surcharge_krw: null,
+      max_surcharge_krw: null,
+      verification_status: 'legacy_wide_csv',
+      source_url: '',
+    })))
+}
+
+function buildTransitions(normalizedRows) {
+  const availableMonths = Array.from(new Set(normalizedRows
+    .map(row => row.ticketing_month)
+    .filter(Boolean)))
+    .sort((a, b) => monthToNumber(a) - monthToNumber(b))
+
+  return availableMonths
+    .map(from => ({ from, to: addOneMonth(from), ticketingDate: ticketingDateForMonth(from) }))
+    .filter(transition => availableMonths.includes(transition.to))
+}
+
 function buildActualRows(actualRows) {
+  const normalizedRows = normalizeActualRows(actualRows)
+  const transitions = buildTransitions(normalizedRows)
+  const byAirlineMonth = new Map()
   const detailRows = []
 
-  for (const row of actualRows) {
-    for (const transition of TRANSITIONS) {
-      const fromValue = parseMoney(row[transition.from])
-      const toValue = parseMoney(row[transition.to])
+  for (const row of normalizedRows) {
+    byAirlineMonth.set(`${row.airline}__${row.ticketing_month}`, row)
+  }
+
+  for (const transition of transitions) {
+    const airlines = Array.from(new Set(normalizedRows.map(row => row.airline))).sort()
+    for (const airline of airlines) {
+      const fromRow = byAirlineMonth.get(`${airline}__${transition.from}`)
+      const toRow = byAirlineMonth.get(`${airline}__${transition.to}`)
+      if (!fromRow || !toRow) continue
+
+      const fromValue = fromRow.representative_surcharge_krw
+      const toValue = toRow.representative_surcharge_krw
       const rate = changeRate(fromValue, toValue)
       detailRows.push({
-        airline: row.airline,
-        airline_code: row.airline_code,
-        band: row.band,
+        airline,
+        airline_code: fromRow.airline_code,
+        basis: fromRow.min_surcharge_krw !== null && fromRow.max_surcharge_krw !== null ? 'midpoint_of_min_max' : 'single_value',
         from_month: transition.from,
         to_month: transition.to,
         from_surcharge_krw: fromValue,
         to_surcharge_krw: toValue,
+        from_min_surcharge_krw: fromRow.min_surcharge_krw,
+        from_max_surcharge_krw: fromRow.max_surcharge_krw,
+        to_min_surcharge_krw: toRow.min_surcharge_krw,
+        to_max_surcharge_krw: toRow.max_surcharge_krw,
         actual_change_rate: rate,
         actual_direction: directionFromRate(rate, ACTUAL_DIRECTION_THRESHOLD_RATE),
       })
     }
   }
 
-  return detailRows
+  return { detailRows, transitions }
 }
 
 function summarizeActualDirection(detailRows, transition) {
@@ -221,11 +293,11 @@ function summarizeActualDirection(detailRows, transition) {
 
 function buildBacktest() {
   const actualRows = parseCsv(fs.readFileSync(actualCsvPath, 'utf8'))
-  const actualDetailRows = buildActualRows(actualRows)
+  const { detailRows: actualDetailRows, transitions } = buildActualRows(actualRows)
   const dubaiKrwPoints = loadDubaiKrwPoints()
   const details = []
 
-  for (const transition of TRANSITIONS) {
+  for (const transition of transitions) {
     const actual = summarizeActualDirection(actualDetailRows, transition)
     const currentPeriod = getCurrentReferencePeriod(transition.from)
     const nextPeriod = getFullNextReferencePeriod(transition.ticketingDate)
@@ -273,12 +345,13 @@ function buildBacktest() {
   return {
     metadata: {
       source: path.relative(root, actualCsvPath),
-      note: 'Internal mini backtest only. Four surcharge months produce three month-to-month direction checks.',
+      note: 'Internal mini backtest only. Official monthly surcharge rows use midpoint of min/max surcharge as each airline monthly representative value.',
       actualDirectionThresholdRate: ACTUAL_DIRECTION_THRESHOLD_RATE,
       yutaDirectionThresholdRate: YUTA_DIRECTION_THRESHOLD_RATE,
       generatedAt: new Date().toISOString(),
     },
     details,
+    actualDetailRows,
   }
 }
 
@@ -302,6 +375,7 @@ function main() {
   fs.mkdirSync(outDir, { recursive: true })
   const result = buildBacktest()
   writeCsv(detailOutPath, result.details)
+  writeCsv(actualDetailOutPath, result.actualDetailRows)
 
   const transitionRows = result.details.filter(row => row.route_profile === ROUTE_PROFILES[0].name)
   const directionMatches = transitionRows.filter(row => row.direction_matched).length
@@ -336,6 +410,7 @@ function main() {
   fs.writeFileSync(summaryOutPath, `${JSON.stringify(summary, null, 2)}\n`, 'utf8')
   console.log(JSON.stringify(summary, null, 2))
   console.log(`\nwrote ${path.relative(root, detailOutPath)}`)
+  console.log(`wrote ${path.relative(root, actualDetailOutPath)}`)
   console.log(`wrote ${path.relative(root, summaryOutPath)}`)
 }
 
