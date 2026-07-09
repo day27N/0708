@@ -204,6 +204,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const resultSectionRef = useRef<HTMLElement | null>(null)
+  const ticketingDateInputRef = useRef<HTMLInputElement | null>(null)
 
   const currentRoutes = selectedCountry ? routes.filter(route => route.country === selectedCountry) : []
   const canAnalyze = selectedRoute !== null && selectedTicketingDate !== ''
@@ -309,6 +310,20 @@ export default function Page() {
     setError(null)
     setAnalysisResult(null)
     setIsResultHighlighted(false)
+  }
+
+  const handleDatePickerClick = () => {
+    const input = ticketingDateInputRef.current
+    if (!input) return
+
+    const pickerInput = input as HTMLInputElement & { showPicker?: () => void }
+
+    if (typeof pickerInput.showPicker === 'function') {
+      pickerInput.showPicker()
+      return
+    }
+
+    input.click()
   }
 
   const handleAnalyzeClick = () => {
@@ -454,18 +469,23 @@ export default function Page() {
             <label className="block min-w-0">
               <span className="text-sm font-bold text-slate-800">이 날짜에 발권한다면?</span>
               <div className="relative mt-2 h-12 w-full min-w-0 max-w-full">
-                <div className="pointer-events-none flex h-12 w-full items-center justify-center rounded-2xl border-2 border-sky-100 bg-white px-11 text-center text-[0.95rem] font-semibold text-slate-950 transition">
+                <button
+                  type="button"
+                  onClick={handleDatePickerClick}
+                  className="flex h-12 w-full items-center justify-center rounded-2xl border-2 border-sky-100 bg-white px-11 text-center text-[0.95rem] font-semibold text-slate-950 transition hover:border-sky-200 focus:outline-none focus:ring-4 focus:ring-sky-100"
+                >
                   <span className={selectedTicketingDate ? '' : 'text-slate-500'}>
                     {formatDisplayDate(selectedTicketingDate) || '날짜 선택'}
                   </span>
                   <span aria-hidden="true" className="absolute right-4 text-base text-sky-600">📅</span>
-                </div>
+                </button>
                 <input
+                  ref={ticketingDateInputRef}
                   type="date"
                   value={selectedTicketingDate}
                   aria-label="발권 날짜 선택"
                   onChange={event => handleTicketingDateChange(event.target.value)}
-                  className="absolute inset-0 h-12 w-full cursor-pointer opacity-0"
+                  className="sr-only"
                 />
               </div>
             </label>
