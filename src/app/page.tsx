@@ -408,13 +408,13 @@ export default function Page() {
               <p className="mt-1 text-sm font-medium text-slate-600">목적지와 발권일만 고르면 바로 결과를 볼 수 있어요.</p>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 rounded-[24px] border border-sky-100 bg-white/90 p-4 shadow-sm md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_180px] lg:items-end">
-            <label className="block">
+          <div className="mt-5 grid min-w-0 max-w-full gap-3 rounded-[24px] border border-sky-100 bg-white/90 p-4 shadow-sm md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_180px] lg:items-end">
+            <label className="block min-w-0">
               <span className="text-sm font-bold text-slate-800">어디로 가세요?</span>
               <select
                 value={selectedCountry}
                 onChange={event => handleCountryChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="mt-2 block h-12 w-full min-w-0 max-w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
               >
                 <option value="">선택</option>
                 {routeCountries.map(country => (
@@ -423,13 +423,13 @@ export default function Page() {
               </select>
             </label>
 
-            <label className="block">
+            <label className="block min-w-0">
               <span className="text-sm font-bold text-slate-800">도시/공항 선택</span>
               <select
                 value={selectedDestination}
                 onChange={event => handleRouteChange(event.target.value)}
                 disabled={!selectedCountry}
-                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 disabled:border-slate-200 disabled:bg-slate-50 disabled:font-medium disabled:text-slate-500"
+                className="mt-2 block h-12 w-full min-w-0 max-w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 disabled:border-slate-200 disabled:bg-slate-50 disabled:font-medium disabled:text-slate-500"
               >
                 <option value="">{selectedCountry ? '도시/공항을 선택해 주세요' : '지역을 선택해주세요'}</option>
                 {currentRoutes.map(route => (
@@ -440,13 +440,13 @@ export default function Page() {
               </select>
             </label>
 
-            <label className="block">
+            <label className="block min-w-0">
               <span className="text-sm font-bold text-slate-800">이 날짜에 발권한다면?</span>
               <input
                 type="date"
                 value={selectedTicketingDate}
                 onChange={event => handleTicketingDateChange(event.target.value)}
-                className="mt-2 h-12 w-full rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
+                className="mt-2 block h-12 w-full min-w-0 max-w-full appearance-none rounded-2xl border-2 border-sky-100 bg-white px-4 text-[0.95rem] font-semibold text-slate-950 outline-none transition hover:border-sky-200 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
               />
             </label>
 
