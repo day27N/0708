@@ -311,6 +311,18 @@ export default function Page() {
     setIsResultHighlighted(false)
   }
 
+  const handleTicketingDateClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void }
+
+    if (typeof input.showPicker !== 'function') return
+
+    try {
+      input.showPicker()
+    } catch {
+      input.focus()
+    }
+  }
+
   const handleAnalyzeClick = () => {
     if (!canAnalyze) {
       setAnalysisResult(null)
@@ -464,6 +476,7 @@ export default function Page() {
                   type="date"
                   value={selectedTicketingDate}
                   aria-label="발권 날짜 선택"
+                  onClick={handleTicketingDateClick}
                   onChange={event => handleTicketingDateChange(event.target.value)}
                   className="absolute inset-0 z-10 h-12 w-full cursor-pointer rounded-2xl border-0 bg-transparent text-[16px] text-transparent opacity-[0.01] outline-none"
                 />
