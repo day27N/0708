@@ -1,0 +1,68 @@
+{
+  "source": "data\\airline_surcharges_2026_04_07.csv",
+  "note": "Internal mini backtest only. Four surcharge months produce three month-to-month direction checks.",
+  "actualDirectionThresholdRate": 3,
+  "yutaDirectionThresholdRate": 3,
+  "generatedAt": "2026-07-09T03:45:58.847Z",
+  "transitionChecks": 3,
+  "yutaDirectionMatched": 3,
+  "yutaDirectionAccuracy": 1,
+  "appMatchesByRoute": [
+    {
+      "routeProfile": "short_800mi",
+      "matched": 2,
+      "total": 3,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "routeProfile": "medium_1900mi",
+      "matched": 2,
+      "total": 3,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "routeProfile": "long_3600mi",
+      "matched": 3,
+      "total": 3,
+      "accuracy": 1
+    }
+  ],
+  "transitions": [
+    {
+      "fromMonth": "2026-04",
+      "toMonth": "2026-05",
+      "yutaDirection": "UP",
+      "actualDirection": "UP",
+      "matched": true,
+      "actualChangeRate": 87.14,
+      "yutaChangeRate": 43.5,
+      "actualRowDirectionCounts": {
+        "UP": 57
+      }
+    },
+    {
+      "fromMonth": "2026-05",
+      "toMonth": "2026-06",
+      "yutaDirection": "DOWN",
+      "actualDirection": "DOWN",
+      "matched": true,
+      "actualChangeRate": -18.81,
+      "yutaChangeRate": -20.58,
+      "actualRowDirectionCounts": {
+        "DOWN": 57
+      }
+    },
+    {
+      "fromMonth": "2026-06",
+      "toMonth": "2026-07",
+      "yutaDirection": "DOWN",
+      "actualDirection": "DOWN",
+      "matched": true,
+      "actualChangeRate": -28.47,
+      "yutaChangeRate": -4.53,
+      "actualRowDirectionCounts": {
+        "DOWN": 57
+      }
+    }
+  ]
+}
